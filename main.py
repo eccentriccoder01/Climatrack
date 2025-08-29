@@ -585,7 +585,7 @@ class PremiumWeatherApp:
         )
         
         if search_query:
-            suggestions = self.location_detector.get_location_suggestions(search_query)
+            suggestions = self.location_detector.search_location_advanced(search_query)
             if suggestions:
                 selected = st.selectbox(
                     "Suggestions",
@@ -872,10 +872,10 @@ class PremiumWeatherApp:
     def handle_quick_location(self, location):
         """Handle quick location selection"""
         if location == "auto":
-            if self.location_detector.get_location():
+            if self.location_detector.get_location_with_ai_enhancement():
                 self.refresh_weather_data()
         else:
-            location_data = self.location_detector.search_location(location)
+            location_data = self.location_detector.search_location_advanced(location)
             if location_data:
                 st.session_state.location_data = location_data
                 self.refresh_weather_data()
