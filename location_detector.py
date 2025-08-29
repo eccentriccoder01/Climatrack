@@ -510,7 +510,7 @@ class PremiumLocationDetector:
         else:
             return "UTC"
         
-def render_forecast_view(self):
+    def render_forecast_view(self):
         """Render the 7-day extended forecast view with advanced analytics."""
         st.markdown("## 📅 Extended Forecast")
 
