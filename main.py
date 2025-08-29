@@ -77,7 +77,8 @@ class PremiumWeatherApp:
             'favorite_locations': [],
             'comparison_locations': [],
             'custom_alerts': [],
-            'dashboard_widgets': ['current_weather', 'forecast', 'radar', 'air_quality'],
+            # CORRECTED: Default widgets now match available widget keys
+            'dashboard_widgets': ['current_weather', 'hourly_forecast', 'weekly_forecast', 'air_quality'],
             
             # Advanced features
             'notifications_enabled': True,
@@ -678,7 +679,6 @@ class PremiumWeatherApp:
     def render_hero_weather_section(self):
         """Render the main hero weather display"""
         weather = st.session_state.weather_data
-        location = st.session_state.location_data
         
         # Create hero section with premium styling
         st.markdown("""
@@ -697,7 +697,6 @@ class PremiumWeatherApp:
         col1, col2, col3 = st.columns([1, 2, 1])
         
         with col1:
-            # Weather icon with animation
             icon_code = weather['weather'][0]['icon']
             condition = weather['weather'][0]['main'].lower()
             st.markdown(
@@ -706,7 +705,6 @@ class PremiumWeatherApp:
             )
         
         with col2:
-            # Main temperature and condition
             temp_unit = "°C" if st.session_state.units == "metric" else "°F"
             temp = weather['main']['temp']
             condition = weather['weather'][0]['description'].title()
@@ -737,7 +735,6 @@ class PremiumWeatherApp:
             """, unsafe_allow_html=True)
         
         with col3:
-            # Quick stats
             humidity = weather['main']['humidity']
             wind_speed = weather['wind']['speed']
             pressure = weather['main']['pressure']
@@ -854,6 +851,315 @@ class PremiumWeatherApp:
         # Call to action
         st.markdown("### 🌍 Get Started")
     
+    def render_forecast_view(self):
+        """Render the 7-day extended forecast view with advanced analytics."""
+        st.markdown("## 📅 Extended Forecast")
+
+        if not st.session_state.get('processed_forecast_data'):
+            st.info("Search for a location to see the extended forecast.")
+            return
+
+        forecast_data = st.session_state.processed_forecast_data
+
+        with st.container():
+            st.markdown("#### Forecast Overview")
+            fig = go.Figure()
+
+            dates = [day['date'] for day in forecast_data]
+            temp_max = [day['temp_max'] for day in forecast_data]
+            temp_min = [day['temp_min'] for day in forecast_data]
+            precip_chance = [day['precipitation_chance'] for day in forecast_data]
+
+            fig.add_trace(go.Scatter(x=dates, y=temp_max, name='Max Temp', mode='lines+markers',
+                                     line=dict(color='var(--warm)', width=3), marker=dict(size=8)))
+            fig.add_trace(go.Scatter(x=dates, y=temp_min, name='Min Temp', mode='lines+markers',
+                                     line=dict(color='var(--cold)', width=3), marker=dict(size=8)))
+            fig.add_trace(go.Bar(x=dates, y=precip_chance, name='Precipitation',
+                                 marker=dict(color='rgba(var(--primary-rgb), 0.5)'), yaxis='y2'))
+
+            fig.update_layout(
+                template="plotly_dark",
+                plot_bgcolor='rgba(0,0,0,0)', paper_bgcolor='rgba(0,0,0,0)',
+                legend=dict(orientation="h", yanchor="bottom", y=1.02, xanchor="right", x=1),
+                yaxis=dict(title='Temperature (°C)'),
+                yaxis2=dict(title='Precipitation (%)', overlaying='y', side='right', range=[0, 100]),
+                margin=dict(l=20, r=20, t=20, b=20)
+            )
+            st.plotly_chart(fig, use_container_width=True)
+
+        st.markdown("---")
+
+        for day in forecast_data:
+            with st.expander(f"{day['day_full']}, {day['date'].strftime('%b %d')} - {day['condition']}", expanded=day['date'].date() == datetime.now().date()):
+                cols = st.columns([1, 2])
+                with cols[0]:
+                    st.image(f"http://openweathermap.org/img/wn/{day['icon']}@4x.png", width=128)
+                    st.markdown(f"<p style='text-align:center; color: var(--accent);'>{day['comfort_level']} Comfort ({day['comfort_score']:.0f}%)</p>", unsafe_allow_html=True)
+
+                with cols[1]:
+                    metric_cols = st.columns(3)
+                    with metric_cols[0]:
+                        st.metric("Temperature", f"{day['temp_avg']:.0f}°C", f"{day['temp_max']:.0f}° / {day['temp_min']:.0f}°")
+                        st.metric("Precipitation", f"{day['precipitation_chance']:.0f}%", f"{day['precipitation_avg']:.1f} mm")
+                    with metric_cols[1]:
+                        st.metric("Wind", f"{day['wind_speed']:.1f} m/s", self.data_processor.format_wind_direction(day['wind_direction_avg']))
+                        st.metric("Humidity", f"{day['humidity']:.0f}%", f"{day['humidity_range']:.0f}% range")
+                    with metric_cols[2]:
+                        st.metric("Pressure", f"{day['pressure_avg']:.0f} hPa", day['pressure_trend'].title())
+                        st.metric("UV Index", f"{day['uv_index_max']:.1f}", "Max Daily")
+
+    def render_radar_view(self):
+        """Render the weather radar view using an embedded map."""
+        st.markdown("## 🗺️ Weather Radar")
+        if not st.session_state.get('location_data'):
+            st.info("Search for a location to view the weather radar.")
+            return
+        lat = st.session_state.location_data['lat']
+        lon = st.session_state.location_data['lon']
+        embed_url = f"https://embed.windy.com/embed2.html?lat={lat}&lon={lon}&zoom=8&level=surface&overlay=radar&menu=&message=&marker=&calendar=now&pressure=&type=map&location=coordinates&detail=&metricWind=m%2Fs&metricTemp=%C2%B0C&radarRange=-1"
+        st.components.v1.html(f'<iframe width="100%" height="600" src="{embed_url}" frameborder="0"></iframe>', height=610)
+
+    def render_maps_view(self):
+        """Render various interactive weather map layers."""
+        st.markdown("## 🌍 Interactive Weather Maps")
+        if not st.session_state.get('location_data'):
+            st.info("Search for a location to explore weather maps.")
+            return
+        map_layers = {
+            'Temperature': 'temp_new', 'Precipitation': 'precipitation_new',
+            'Wind Speed': 'wind_new', 'Pressure': 'pressure_new', 'Clouds': 'clouds_new'
+        }
+        selected_layer_name = st.selectbox("Select Map Layer", list(map_layers.keys()))
+        selected_layer_code = map_layers[selected_layer_name]
+        lat = st.session_state.location_data['lat']
+        lon = st.session_state.location_data['lon']
+        zoom = 6
+        tile_url = f"https://tile.openweathermap.org/map/{selected_layer_code}/{zoom}/{int(lon)}/{int(lat)}.png?appid={self.weather_api.api_key}"
+        st.markdown(f"#### {selected_layer_name} Map")
+        st.image(tile_url, caption=f"Weather map layer showing {selected_layer_name.lower()}.", use_column_width=True)
+        st.info("Note: For a fully interactive map experience, integration with a mapping library like Folium or Leaflet is recommended. This view displays the relevant map tile for the selected location.")
+
+    def render_analytics_view(self):
+        """Render the weather analytics view with trend analysis."""
+        st.markdown("## 📊 Weather Analytics")
+        if not st.session_state.get('processed_forecast_data'):
+            st.info("Search for a location to generate weather analytics.")
+            return
+        forecast_data = st.session_state.processed_forecast_data
+        trends = self.data_processor.calculate_weather_trends_advanced(forecast_data)
+        st.markdown("#### Key Trends for the Next 7 Days")
+        cols = st.columns(4)
+        with cols[0]:
+            temp_trend = trends['temperature']['avg_trend']
+            st.markdown(self.ui.create_premium_metric_card("🌡️", "Temperature Trend", temp_trend['direction'].title(), f"{temp_trend['slope']:.1f}°/day"))
+        with cols[1]:
+            pressure_trend = trends['pressure']['trend']
+            st.markdown(self.ui.create_premium_metric_card("💨", "Pressure Trend", pressure_trend['direction'].title(), f"{pressure_trend['slope']:.1f} hPa/day"))
+        with cols[2]:
+            comfort_trend = trends['comfort']['trend']
+            st.markdown(self.ui.create_premium_metric_card("😊", "Comfort Trend", comfort_trend['direction'].title(), f"{comfort_trend['slope']:.1f}%/day"))
+        with cols[3]:
+            change_prob = trends['pressure']['weather_change_likelihood']['probability']
+            st.markdown(self.ui.create_premium_metric_card("🔄", "Change Likelihood", f"{change_prob:.0%}", "Chance of pattern shift"))
+
+    def render_compare_view(self):
+        """Render the location comparison view."""
+        st.markdown("## ⚖️ Location Comparison")
+        if 'comparison_locations_data' not in st.session_state:
+            st.session_state.comparison_locations_data = {}
+        new_location_query = st.text_input("Add a location to compare (e.g., 'Paris, FR')")
+        if new_location_query:
+            suggestions = self.location_detector.search_location_advanced(new_location_query, limit=1)
+            if suggestions:
+                location_info = suggestions[0]
+                location_key = location_info['display_name']
+                if location_key not in st.session_state.comparison_locations_data:
+                    with st.spinner(f"Fetching weather for {location_key}..."):
+                        weather_data = self.weather_api.get_current_weather_enhanced(location_info['lat'], location_info['lon'])
+                        if weather_data:
+                            st.session_state.comparison_locations_data[location_key] = weather_data
+                            st.rerun()
+        if not st.session_state.comparison_locations_data:
+            st.info("Add one or more locations to start comparing their current weather conditions.")
+            return
+        locations = list(st.session_state.comparison_locations_data.keys())
+        cols = st.columns(len(locations))
+        for i, loc_name in enumerate(locations):
+            with cols[i]:
+                weather = st.session_state.comparison_locations_data[loc_name]
+                st.markdown(f"#### {loc_name}")
+                st.image(f"http://openweathermap.org/img/wn/{weather['weather'][0]['icon']}@2x.png", width=80)
+                st.metric("Temperature", f"{weather['main']['temp']:.1f}°C", f"Feels like {weather['main']['feels_like']:.1f}°C")
+                st.metric("Condition", weather['weather'][0]['description'].title())
+                st.metric("Wind", f"{weather['wind']['speed']:.1f} m/s", self.data_processor.format_wind_direction(weather['wind'].get('deg')))
+                st.metric("Humidity", f"{weather['main']['humidity']}%")
+                if st.button("Remove", key=f"remove_{loc_name}"):
+                    del st.session_state.comparison_locations_data[loc_name]
+                    st.rerun()
+
+    def render_alerts_view(self):
+        """Render the weather alerts view."""
+        st.markdown("## 🚨 Weather Alerts")
+        if not st.session_state.get('location_data'):
+            st.info("Search for a location to check for active weather alerts.")
+            return
+        with st.spinner("Checking for weather alerts..."):
+            lat = st.session_state.location_data['lat']
+            lon = st.session_state.location_data['lon']
+            alerts = self.weather_api.get_weather_alerts_advanced(lat, lon)
+        if not alerts:
+            st.success("✅ No active weather alerts for the selected location.")
+            return
+        for alert in alerts:
+            severity = alert.get('severity_level', 'medium')
+            if severity in ['extreme', 'high']:
+                st.error(f"**{alert['event']}** from {alert['sender_name']}")
+            elif severity == 'medium':
+                st.warning(f"**{alert['event']}** from {alert['sender_name']}")
+            else:
+                st.info(f"**{alert['event']}** from {alert['sender_name']}")
+
+    def render_historical_view(self):
+        """Render the historical weather data view."""
+        st.markdown("## 📈 Historical Data")
+        if not st.session_state.get('location_data'):
+            st.info("Search for a location to look up historical weather data.")
+            return
+        st.warning("📜 Accessing historical data may require a premium API subscription.")
+        today = datetime.now()
+        selected_date = st.date_input("Select a date", today, max_value=today)
+        if st.button("Fetch Historical Weather"):
+            with st.spinner(f"Fetching weather data for {selected_date.strftime('%Y-%m-%d')}..."):
+                lat = st.session_state.location_data['lat']
+                lon = st.session_state.location_data['lon']
+                historical_data = self.weather_api.get_historical_weather_advanced(lat, lon, selected_date)
+            if historical_data and 'current' in historical_data:
+                st.success(f"Data for {selected_date.strftime('%Y-%m-%d')} loaded.")
+                data = historical_data['current']
+                st.markdown(f"### Weather on {data['date_info']['target_date']}")
+                cols = st.columns(3)
+                cols[0].metric("Temperature", f"{data['temp']:.1f}°C", f"Feels like {data['feels_like']:.1f}°C")
+                cols[1].metric("Condition", data['weather'][0]['description'].title())
+                cols[2].metric("Wind Speed", f"{data['wind_speed']:.1f} m/s")
+            else:
+                st.error("Could not retrieve historical data. This may be a premium feature not available on your API key.")
+
+    def render_current_weather_widget(self):
+        """Render a detailed widget for current conditions."""
+        st.markdown("#### ⚡ Current Conditions")
+        if st.session_state.get('weather_data'):
+            weather = st.session_state.weather_data
+            cols = st.columns(2)
+            cols[0].metric("Humidity", f"{weather['main']['humidity']}%")
+            cols[0].metric("Pressure", f"{weather['main']['pressure']} hPa")
+            cols[1].metric("Visibility", f"{weather.get('visibility', 10000) / 1000:.1f} km")
+            cols[1].metric("Cloud Cover", f"{weather['clouds']['all']}%")
+        else:
+            st.write("No data available.")
+
+    def render_hourly_forecast_widget(self):
+        """Render a widget with a 24-hour forecast chart."""
+        st.markdown("#### 🕒 24-Hour Forecast")
+        if st.session_state.get('hourly_data'):
+            hourly_data = st.session_state.hourly_data[:24]
+            fig = go.Figure()
+            fig.add_trace(go.Scatter(x=[h['time'] for h in hourly_data], y=[h['temp'] for h in hourly_data], name='Temperature', mode='lines+markers', line=dict(color='var(--primary)')))
+            fig.update_layout(template="plotly_dark", plot_bgcolor='rgba(0,0,0,0)', paper_bgcolor='rgba(0,0,0,0)', height=200, margin=dict(l=0, r=0, t=0, b=0), xaxis=dict(showticklabels=False), yaxis=dict(showticklabels=False))
+            st.plotly_chart(fig, use_container_width=True)
+        else:
+            st.write("No data available.")
+
+    def render_weekly_forecast_widget(self):
+        """Render a compact 7-day forecast widget."""
+        st.markdown("#### 🗓️ 7-Day Forecast")
+        if st.session_state.get('processed_forecast_data'):
+            forecast = st.session_state.processed_forecast_data
+            for day in forecast:
+                cols = st.columns([1, 2, 1])
+                with cols[0]:
+                    st.write(day['day'])
+                with cols[1]:
+                    st.image(f"http://openweathermap.org/img/wn/{day['icon']}.png", width=32)
+                with cols[2]:
+                    st.write(f"{day['temp_max']:.0f}°/{day['temp_min']:.0f}°")
+        else:
+            st.write("No data available.")
+
+    def render_air_quality_widget(self):
+        """Render an AQI widget."""
+        st.markdown("#### 🌬️ Air Quality")
+        aqi_full_data = st.session_state.get('air_quality_data')
+        if aqi_full_data and 'list' in aqi_full_data and aqi_full_data['list']:
+            aqi_data = aqi_full_data['list'][0]
+            aqi = aqi_data['main']['aqi']
+            level_info = self.weather_api._get_aqi_health_info(aqi)
+            level = level_info['level']
+            color_map = {'Good': '#10b981', 'Fair': '#f59e0b', 'Moderate': '#f97316', 'Poor': '#ef4444', 'Very Poor': '#dc2626'}
+            st.markdown(self.ui.create_aqi_indicator(aqi, level, color_map.get(level, '#f97316')), unsafe_allow_html=True)
+        else:
+            st.write("No air quality data available.")
+
+    def render_uv_index_widget(self):
+        """Render a widget for UV index."""
+        st.markdown("#### ☀️ UV Index & Solar")
+        if st.session_state.get('weather_data'):
+            weather = st.session_state.weather_data
+            sunrise = datetime.fromtimestamp(weather['sys']['sunrise']).strftime('%H:%M')
+            sunset = datetime.fromtimestamp(weather['sys']['sunset']).strftime('%H:%M')
+            st.metric("Sunrise", sunrise)
+            st.metric("Sunset", sunset)
+        else:
+            st.write("No data available.")
+
+    def render_pressure_trends_widget(self):
+        """Render a widget for atmospheric pressure trends."""
+        st.markdown("#### 📈 Atmospheric Pressure")
+        if st.session_state.get('processed_forecast_data'):
+            pressure_data = [d['pressure_avg'] for d in st.session_state.processed_forecast_data]
+            fig = go.Figure()
+            fig.add_trace(go.Scatter(y=pressure_data, mode='lines', line=dict(color='var(--accent)')))
+            fig.update_layout(template="plotly_dark", plot_bgcolor='rgba(0,0,0,0)', paper_bgcolor='rgba(0,0,0,0)', height=150, margin=dict(l=0, r=0, t=0, b=0), xaxis=dict(showticklabels=False), yaxis=dict(showticklabels=False))
+            st.plotly_chart(fig, use_container_width=True)
+        else:
+            st.write("No data available.")
+
+    def render_wind_analysis_widget(self):
+        """Render a widget for wind conditions."""
+        st.markdown("#### 💨 Wind Conditions")
+        if st.session_state.get('weather_data'):
+            wind = st.session_state.weather_data['wind']
+            st.metric("Wind Speed", f"{wind['speed']:.1f} m/s")
+            st.metric("Direction", self.data_processor.format_wind_direction(wind.get('deg')))
+            if 'gust' in wind:
+                st.metric("Gusts", f"{wind['gust']:.1f} m/s")
+        else:
+            st.write("No data available.")
+
+    def render_precipitation_widget(self):
+        """Render a placeholder widget for precipitation."""
+        st.markdown("#### 💧 Precipitation")
+        st.info("Precipitation radar map widget coming soon.")
+
+    def render_satellite_widget(self):
+        """Render a placeholder widget for satellite imagery."""
+        st.markdown("####🛰️ Satellite")
+        st.info("Satellite imagery widget coming soon.")
+
+    def render_alerts_widget(self):
+        """Render a compact widget for weather alerts."""
+        st.markdown("#### 🚨 Alerts")
+        if st.session_state.get('location_data'):
+            lat = st.session_state.location_data['lat']
+            lon = st.session_state.location_data['lon']
+            alerts = self.weather_api.get_weather_alerts_advanced(lat, lon)
+            if alerts:
+                for alert in alerts[:1]:
+                    st.warning(f"**{alert['event']}**: {alert['description'][:50]}...")
+            else:
+                st.success("No active alerts.")
+        else:
+            st.write("No location selected.")
+    
     # Additional methods for other views...
     def refresh_weather_data(self):
         """Refresh weather data for current location"""
@@ -880,7 +1186,7 @@ class PremiumWeatherApp:
         else:
             location_data = self.location_detector.search_location_advanced(location)
             if location_data:
-                st.session_state.location_data = location_data
+                st.session_state.location_data = location_data[0] # Take the first result
                 self.refresh_weather_data()
     
     def handle_location_selection(self, location_data):
@@ -896,27 +1202,22 @@ class PremiumWeatherApp:
     
     def fetch_weather_data(self, lat, lon):
         """Fetch comprehensive weather data"""
-        # Implementation similar to original but with progress tracking
         progress_bar = st.progress(0)
         status_text = st.empty()
         
         try:
-            # Current weather
             status_text.text("☁️ Fetching current conditions...")
             progress_bar.progress(20)
             current_weather = self.weather_api.get_current_weather_enhanced(lat, lon, st.session_state.units)
             
-            # Forecast
             status_text.text("📅 Loading forecast data...")
             progress_bar.progress(50)
             forecast = self.weather_api.get_forecast_enhanced(lat, lon, st.session_state.units)
             
-            # Air quality
             status_text.text("🌬️ Checking air quality...")
             progress_bar.progress(80)
             air_quality = self.weather_api.get_air_quality_enhanced(lat, lon)
             
-            # Store data
             if current_weather:
                 st.session_state.weather_data = current_weather
             if forecast:
@@ -940,13 +1241,9 @@ class PremiumWeatherApp:
         self.initialize_session_state()
         self.load_premium_styling()
         
-        # Render sidebar navigation
         self.render_premium_sidebar()
-        
-        # Render main content
         self.render_content_area()
         
-        # Floating action buttons
         st.markdown("""
             <div class="fab-container">
                 <button class="fab" title="Settings">⚙️</button>
