@@ -631,10 +631,12 @@ class PremiumWeatherApp:
         # Widget selector
         col1, col2 = st.columns([3, 1])
         with col2:
+            valid_default_widgets = [widget for widget in st.session_state.dashboard_widgets if widget in available_widgets]
+
             selected_widgets = st.multiselect(
                 "Customize Dashboard",
                 list(available_widgets.keys()),
-                default=st.session_state.dashboard_widgets,
+                default=valid_default_widgets, 
                 format_func=lambda x: available_widgets[x]
             )
             st.session_state.dashboard_widgets = selected_widgets
