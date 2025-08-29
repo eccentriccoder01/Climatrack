@@ -662,6 +662,46 @@ class AdvancedDataProcessor:
             'indoor_activities': max(0, min(100, indoor_activities)),
             'recommendations': recommendations
         }
+        
+    def _detect_weather_patterns_daily(self, day_data: Dict) -> List[str]:
+            """Detect significant weather patterns for a single day."""
+            patterns = []
+            
+            # Ensure data exists to avoid errors
+            if not all(k in day_data for k in ['temps', 'humidity', 'precipitation', 'wind_speed', 'pressure']) or not day_data['temps']:
+                return patterns
+
+            # Check for heat wave conditions
+            heat_wave_config = self.weather_patterns['heat_wave']
+            if max(day_data['temps']) > heat_wave_config['temp_threshold']:
+                patterns.append('heat_wave')
+                
+            # Check for cold snap conditions
+            cold_snap_config = self.weather_patterns['cold_snap']
+            if min(day_data['temps']) < cold_snap_config['temp_threshold']:
+                patterns.append('cold_snap')
+                
+            # Check for drought conditions
+            drought_config = self.weather_patterns['drought']
+            avg_humidity = np.mean(day_data['humidity'])
+            max_precip = max(day_data['precipitation'])
+            if (avg_humidity < drought_config['humidity_threshold'] and 
+                (max_precip / 100) < drought_config['precipitation_threshold']): # Convert precip % back to probability
+                patterns.append('drought')
+                
+            # Check for storm system conditions
+            storm_config = self.weather_patterns['storm_system']
+            max_wind = max(day_data['wind_speed'])
+            
+            # Check for significant pressure drop within the day
+            pressure_diff = day_data['pressure'][-1] - day_data['pressure'][0]
+            
+            if (max_wind > storm_config['wind_threshold'] and 
+                pressure_diff < -storm_config['pressure_drop'] and # Negative diff means pressure is falling
+                (max_precip / 100) > storm_config['precipitation_threshold']):
+                patterns.append('storm_system')
+                
+            return list(set(patterns)) # Return unique patterns
     
     def calculate_weather_trends_advanced(self, forecast_data: List[Dict]) -> Dict[str, Any]:
         """Advanced weather trends analysis with machine learning insights"""
