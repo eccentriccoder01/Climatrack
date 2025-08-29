@@ -580,7 +580,7 @@ class PremiumWeatherApp:
         search_query = st.text_input(
             "",
             placeholder="🔍 Search locations, coordinates, or points of interest...",
-            key="premium_search{suffix}",
+            key=f"premium_search{suffix}",
             label_visibility="collapsed"
         )
         
@@ -850,7 +850,6 @@ class PremiumWeatherApp:
         
         # Call to action
         st.markdown("### 🌍 Get Started")
-        self.render_premium_search(suffix="_welcome")
     
     # Additional methods for other views...
     def refresh_weather_data(self):
