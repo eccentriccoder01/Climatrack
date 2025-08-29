@@ -488,9 +488,10 @@ class PremiumWeatherApp:
             st.markdown("### 📊 System Status")
             
             # API status
-            api_status = self.weather_api.api_key
-            status_color = "🟢" if api_status[0] else "🔴"
-            st.markdown(f"{status_color} **API Status:** {api_status[1]}")
+            api_validation = self.weather_api.validate_api_key_comprehensive()
+            status_color = "🟢" if api_validation.get('is_valid') else "🔴"
+            status_message = api_validation.get('status', 'unknown').replace('_', ' ').title()
+            st.markdown(f"{status_color} **API Status:** {status_message}")
             
             # Data freshness
             if st.session_state.last_update:
@@ -901,24 +902,24 @@ class PremiumWeatherApp:
             # Current weather
             status_text.text("☁️ Fetching current conditions...")
             progress_bar.progress(20)
-            current_weather = self.weather_api.get_current_weather(lat, lon, st.session_state.units)
+            current_weather = self.weather_api.get_current_weather_enhanced(lat, lon, st.session_state.units)
             
             # Forecast
             status_text.text("📅 Loading forecast data...")
             progress_bar.progress(50)
-            forecast = self.weather_api.get_forecast(lat, lon, st.session_state.units)
+            forecast = self.weather_api.get_forecast_enhanced(lat, lon, st.session_state.units)
             
             # Air quality
             status_text.text("🌬️ Checking air quality...")
             progress_bar.progress(80)
-            air_quality = self.weather_api.get_air_quality(lat, lon)
+            air_quality = self.weather_api.get_air_quality_enhanced(lat, lon)
             
             # Store data
             if current_weather:
                 st.session_state.weather_data = current_weather
             if forecast:
                 st.session_state.forecast_data = forecast
-                st.session_state.hourly_data = self.data_processor.process_hourly_data(forecast)
+                st.session_state.processed_forecast_data = self.data_processor.process_forecast_data_advanced(forecast)
             if air_quality:
                 st.session_state.air_quality_data = air_quality
             
