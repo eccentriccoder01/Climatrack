@@ -11,1031 +11,948 @@ import time
 import pandas as pd
 import numpy as np
 
-from weather_api import WeatherAPI
-from location_detector import LocationDetector
+from weather_api import PremiumWeatherAPI
+from location_detector import PremiumLocationDetector
 from ui_components import UIComponents
-from data_processor import DataProcessor
+from data_processor import AdvancedDataProcessor
 
-# Page configuration
+# Premium page configuration
 st.set_page_config(
     page_title="Climatrack • Premium Weather Intelligence",
     page_icon="🌤️",
     layout="wide",
-    initial_sidebar_state="collapsed",
+    initial_sidebar_state="expanded",
     menu_items={
         'Get Help': 'https://github.com/eccentriccoder01/climatrack',
         'Report a bug': "https://github.com/eccentriccoder01/climatrack/issues",
-        'About': "# Climatrack\nPremium weather intelligence platform"
+        'About': "# Climatrack\nPremium weather intelligence platform with AI-powered insights"
     }
 )
 
-class WeatherApp:
+class PremiumWeatherApp:
+    """World-class premium weather intelligence platform"""
+    
     def __init__(self):
-        self.weather_api = WeatherAPI()
-        self.location_detector = LocationDetector()
+        self.weather_api = PremiumWeatherAPI()
+        self.location_detector = PremiumLocationDetector()
         self.ui = UIComponents()
-        self.data_processor = DataProcessor()
+        self.data_processor = AdvancedDataProcessor()
+        
+        # Premium app state
+        self.views = {
+            'dashboard': '🏠 Dashboard',
+            'forecast': '📅 Extended Forecast',
+            'radar': '🗺️ Weather Radar',
+            'maps': '🌍 Interactive Maps',
+            'analytics': '📊 Weather Analytics',
+            'compare': '⚖️ Location Compare',
+            'alerts': '🚨 Weather Alerts',
+            'historical': '📈 Historical Data'
+        }
         
     def initialize_session_state(self):
-        """Initialize session state variables with enhanced features"""
+        """Initialize premium session state with advanced features"""
         defaults = {
+            # Core data
             'location_data': None,
             'weather_data': None,
             'forecast_data': None,
             'hourly_data': None,
             'air_quality_data': None,
-            'last_update': None,
-            'theme_mode': 'aurora',
+            'radar_data': None,
+            'alerts_data': None,
+            'historical_data': None,
+            
+            # UI state
+            'current_view': 'dashboard',
+            'sidebar_expanded': True,
+            'theme_mode': 'premium_dark',
+            'background_mode': 'dynamic',
+            'animation_enabled': True,
+            'sound_enabled': False,
+            
+            # User preferences
             'units': 'metric',
+            'language': 'en',
             'favorite_locations': [],
             'comparison_locations': [],
-            'show_hourly': False,
-            'show_map': False,
+            'custom_alerts': [],
+            'dashboard_widgets': ['current_weather', 'forecast', 'radar', 'air_quality'],
+            
+            # Advanced features
             'notifications_enabled': True,
-            'auto_refresh': False,
-            'refresh_interval': 300,  # 5 minutes
-            'user_preferences': {
-                'temperature_alerts': True,
-                'rain_alerts': True,
-                'wind_alerts': True,
-                'air_quality_alerts': True
-            }
+            'auto_refresh': True,
+            'refresh_interval': 300,
+            'data_quality_alerts': True,
+            'performance_mode': 'balanced',
+            
+            # Analytics
+            'weather_history': [],
+            'location_history': [],
+            'app_usage_stats': {
+                'sessions': 0,
+                'locations_searched': 0,
+                'forecasts_viewed': 0
+            },
+            
+            # Premium features
+            'premium_maps_enabled': True,
+            'advanced_analytics': True,
+            'historical_access': True,
+            'unlimited_locations': True,
+            
+            # Cache and performance
+            'last_update': None,
+            'cache_enabled': True,
+            'preload_data': True
         }
         
         for key, value in defaults.items():
             if key not in st.session_state:
                 st.session_state[key] = value
                 
-    def load_custom_css(self):
-        """Load premium CSS styling"""
+        # Update usage statistics
+        if 'app_initialized' not in st.session_state:
+            st.session_state.app_usage_stats['sessions'] += 1
+            st.session_state.app_initialized = True
+                
+    def load_premium_styling(self):
+        """Load world-class premium styling system"""
         self.ui.load_premium_css()
         
-    def detect_location(self):
-        """Enhanced location detection with error handling"""
-        try:
-            with st.spinner("🌍 Detecting your location..."):
-                location_data = self.location_detector.get_location()
-                if location_data:
-                    st.session_state.location_data = location_data
-                    if st.session_state.notifications_enabled:
-                        st.success(f"📍 Location detected: {location_data['city']}, {location_data['country']}")
-                    return True
-                return False
-        except Exception as e:
-            st.error(f"❌ Location detection failed: {str(e)}")
-            return False
-            
-    def fetch_weather_data(self, lat, lon, show_loading=True):
-        """Enhanced weather data fetching with comprehensive data"""
-        if show_loading:
-            progress_bar = st.progress(0)
-            status_text = st.empty()
+        # Add custom premium enhancements
+        st.markdown("""
+        <style>
+        /* Premium App Framework */
+        .main-container {
+            background: 
+                radial-gradient(circle at 20% 80%, rgba(120, 119, 198, 0.3) 0%, transparent 50%),
+                radial-gradient(circle at 80% 20%, rgba(255, 119, 198, 0.3) 0%, transparent 50%),
+                radial-gradient(circle at 40% 40%, rgba(120, 200, 255, 0.2) 0%, transparent 50%),
+                linear-gradient(135deg, #0a0a0f 0%, #1a0b2e 25%, #16213e 50%, #0f3460 75%, #0a1a2e 100%);
+            min-height: 100vh;
+            position: relative;
+        }
         
-        try:
-            # Current weather
-            if show_loading:
-                status_text.text("☁️ Fetching current weather...")
-                progress_bar.progress(25)
-            
-            current_weather = self.weather_api.get_current_weather(lat, lon, st.session_state.units)
-            if current_weather:
-                st.session_state.weather_data = current_weather
-                
-            # 5-day forecast
-            if show_loading:
-                status_text.text("📅 Fetching forecast data...")
-                progress_bar.progress(50)
-                
-            forecast = self.weather_api.get_forecast(lat, lon, st.session_state.units)
-            if forecast:
-                st.session_state.forecast_data = forecast
-                st.session_state.hourly_data = self.data_processor.process_hourly_data(forecast)
-                
-            # Air quality
-            if show_loading:
-                status_text.text("🌬️ Fetching air quality data...")
-                progress_bar.progress(75)
-                
-            air_quality = self.weather_api.get_air_quality(lat, lon)
-            if air_quality:
-                st.session_state.air_quality_data = air_quality
-                
-            if show_loading:
-                status_text.text("✅ Data loaded successfully!")
-                progress_bar.progress(100)
-                time.sleep(0.5)
-                progress_bar.empty()
-                status_text.empty()
-                
-            st.session_state.last_update = datetime.now()
-            return current_weather and forecast
-            
-        except Exception as e:
-            if show_loading:
-                progress_bar.empty()
-                status_text.empty()
-            st.error(f"❌ Failed to fetch weather data: {str(e)}")
-            return False
-            
-    def render_header(self):
-        """Render premium header with navigation"""
-        st.markdown(self.ui.create_premium_header(), unsafe_allow_html=True)
+        /* Navigation Enhancement */
+        .stSidebar {
+            background: rgba(255, 255, 255, 0.02) !important;
+            border-right: 1px solid rgba(255, 255, 255, 0.1) !important;
+            backdrop-filter: blur(20px) !important;
+        }
         
-        # Navigation and settings
-        col1, col2, col3, col4, col5 = st.columns([1, 1, 1, 1, 1])
+        .nav-item {
+            padding: 12px 20px;
+            margin: 4px 8px;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            border: 1px solid transparent;
+            position: relative;
+            overflow: hidden;
+        }
         
-        with col1:
-            if st.button("🏠 Dashboard", key="nav_dashboard", use_container_width=True):
-                st.session_state.show_hourly = False
-                st.session_state.show_map = False
-                
-        with col2:
-            if st.button("⏰ Hourly", key="nav_hourly", use_container_width=True):
-                st.session_state.show_hourly = True
-                st.session_state.show_map = False
-                
-        with col3:
-            if st.button("🗺️ Map", key="nav_map", use_container_width=True):
-                st.session_state.show_map = True
-                st.session_state.show_hourly = False
-                
-        with col4:
-            if st.button("⭐ Favorites", key="nav_favorites", use_container_width=True):
-                self.show_favorites_modal()
-                
-        with col5:
-            if st.button("⚙️ Settings", key="nav_settings", use_container_width=True):
-                self.show_settings_modal()
-                
-    def show_settings_modal(self):
-        """Enhanced settings modal with premium features"""
-        with st.expander("⚙️ Premium Settings", expanded=True):
-            tab1, tab2, tab3, tab4 = st.tabs(["🌡️ Units", "🎨 Theme", "🔔 Alerts", "🔄 Auto-Refresh"])
+        .nav-item:hover {
+            background: rgba(255, 255, 255, 0.08);
+            border-color: rgba(0, 212, 255, 0.3);
+            transform: translateX(4px);
+        }
+        
+        .nav-item.active {
+            background: linear-gradient(135deg, rgba(0, 212, 255, 0.2), rgba(124, 58, 237, 0.2));
+            border-color: rgba(0, 212, 255, 0.5);
+            color: white;
+        }
+        
+        .nav-item::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+            transition: left 0.5s;
+        }
+        
+        .nav-item:hover::before {
+            left: 100%;
+        }
+        
+        /* Premium Content Areas */
+        .content-section {
+            background: rgba(255, 255, 255, 0.03);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
+            padding: 30px;
+            margin: 20px 0;
+            position: relative;
+            overflow: hidden;
+            transition: all 0.3s ease;
+        }
+        
+        .content-section:hover {
+            background: rgba(255, 255, 255, 0.05);
+            border-color: rgba(255, 255, 255, 0.15);
+            transform: translateY(-2px);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+        }
+        
+        /* Floating Action Buttons */
+        .fab-container {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            z-index: 1000;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+        
+        .fab {
+            width: 56px;
+            height: 56px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            border: none;
+            color: white;
+            font-size: 20px;
+            cursor: pointer;
+            box-shadow: 0 8px 24px rgba(0, 212, 255, 0.3);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .fab:hover {
+            transform: scale(1.1) translateY(-2px);
+            box-shadow: 0 12px 32px rgba(0, 212, 255, 0.4);
+        }
+        
+        /* Premium Search Bar */
+        .premium-search-container {
+            position: relative;
+            margin: 20px 0;
+        }
+        
+        .search-input {
+            width: 100%;
+            padding: 16px 24px 16px 56px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 2px solid rgba(255, 255, 255, 0.1);
+            border-radius: 50px;
+            color: white;
+            font-size: 16px;
+            transition: all 0.3s ease;
+        }
+        
+        .search-input:focus {
+            background: rgba(255, 255, 255, 0.08);
+            border-color: var(--primary);
+            box-shadow: 0 0 0 4px rgba(0, 212, 255, 0.1);
+            outline: none;
+        }
+        
+        .search-icon {
+            position: absolute;
+            left: 20px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: rgba(255, 255, 255, 0.6);
+            font-size: 20px;
+        }
+        
+        /* Advanced Metrics Display */
+        .metric-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin: 30px 0;
+        }
+        
+        .metric-card {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 16px;
+            padding: 24px;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        
+        .metric-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, var(--primary), var(--accent));
+            transform: scaleX(0);
+            transition: transform 0.3s ease;
+        }
+        
+        .metric-card:hover::before {
+            transform: scaleX(1);
+        }
+        
+        .metric-card:hover {
+            background: rgba(255, 255, 255, 0.08);
+            border-color: rgba(255, 255, 255, 0.2);
+            transform: translateY(-4px);
+            box-shadow: 0 16px 32px rgba(0, 0, 0, 0.2);
+        }
+        
+        .metric-icon {
+            font-size: 32px;
+            margin-bottom: 12px;
+            display: block;
+            filter: drop-shadow(0 0 8px rgba(255, 255, 255, 0.3));
+        }
+        
+        .metric-value {
+            font-size: 28px;
+            font-weight: 700;
+            color: white;
+            margin-bottom: 8px;
+            font-family: 'JetBrains Mono', monospace;
+        }
+        
+        .metric-label {
+            font-size: 14px;
+            color: rgba(255, 255, 255, 0.7);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            font-weight: 500;
+        }
+        
+        /* Premium Status Indicators */
+        .status-indicator {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 14px;
+            font-weight: 500;
+            margin: 4px;
+        }
+        
+        .status-online {
+            background: rgba(16, 185, 129, 0.2);
+            border: 1px solid rgba(16, 185, 129, 0.4);
+            color: #10b981;
+        }
+        
+        .status-loading {
+            background: rgba(245, 158, 11, 0.2);
+            border: 1px solid rgba(245, 158, 11, 0.4);
+            color: #f59e0b;
+        }
+        
+        .status-error {
+            background: rgba(239, 68, 68, 0.2);
+            border: 1px solid rgba(239, 68, 68, 0.4);
+            color: #ef4444;
+        }
+        
+        /* Responsive Enhancements */
+        @media (max-width: 768px) {
+            .metric-grid {
+                grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+                gap: 15px;
+            }
             
-            with tab1:
-                col1, col2 = st.columns(2)
-                with col1:
-                    new_units = st.selectbox(
-                        "Temperature Units",
-                        ["metric", "imperial", "kelvin"],
-                        index=["metric", "imperial", "kelvin"].index(st.session_state.units),
-                        format_func=lambda x: {"metric": "Celsius (°C)", "imperial": "Fahrenheit (°F)", "kelvin": "Kelvin (K)"}[x]
-                    )
-                    
-                    if new_units != st.session_state.units:
-                        st.session_state.units = new_units
-                        if st.session_state.location_data:
-                            self.fetch_weather_data(
-                                st.session_state.location_data['lat'],
-                                st.session_state.location_data['lon'],
-                                show_loading=False
-                            )
-                            st.rerun()
-                            
-            with tab2:
-                theme_options = list(self.ui.themes.keys())
-                current_theme_index = theme_options.index(st.session_state.theme_mode) if st.session_state.theme_mode in theme_options else 0
+            .fab-container {
+                bottom: 20px;
+                right: 20px;
+            }
+            
+            .content-section {
+                padding: 20px;
+                margin: 15px 0;
+            }
+        }
+        </style>
+        """, unsafe_allow_html=True)
+        
+    def render_premium_sidebar(self):
+        """Render sophisticated sidebar navigation"""
+        with st.sidebar:
+            # App branding
+            st.markdown("""
+                <div style="text-align: center; padding: 20px 0; margin-bottom: 30px;">
+                    <h1 style="
+                        font-family: 'Playfair Display', serif;
+                        font-size: 28px;
+                        font-weight: 800;
+                        background: linear-gradient(135deg, var(--primary), var(--accent));
+                        -webkit-background-clip: text;
+                        -webkit-text-fill-color: transparent;
+                        margin: 0;
+                    ">Climatrack</h1>
+                    <p style="
+                        color: rgba(255, 255, 255, 0.6);
+                        font-size: 12px;
+                        margin: 5px 0 0 0;
+                        text-transform: uppercase;
+                        letter-spacing: 2px;
+                    ">Premium Intelligence</p>
+                </div>
+            """, unsafe_allow_html=True)
+            
+            # Navigation menu
+            st.markdown("### 🧭 Navigation")
+            
+            for view_key, view_name in self.views.items():
+                is_active = st.session_state.current_view == view_key
                 
-                new_theme = st.selectbox(
-                    "Color Theme",
-                    theme_options,
-                    index=current_theme_index,
-                    format_func=lambda x: self.ui.themes[x]["name"]
-                )
-                
-                if new_theme != st.session_state.theme_mode:
-                    st.session_state.theme_mode = new_theme
+                if st.button(
+                    view_name,
+                    key=f"nav_{view_key}",
+                    use_container_width=True,
+                    type="primary" if is_active else "secondary"
+                ):
+                    st.session_state.current_view = view_key
+                    st.rerun()
+            
+            st.markdown("---")
+            
+            # Quick actions
+            st.markdown("### ⚡ Quick Actions")
+            
+            col1, col2 = st.columns(2)
+            with col1:
+                if st.button("🔄 Refresh", use_container_width=True):
+                    self.refresh_weather_data()
                     st.rerun()
                     
-            with tab3:
-                st.checkbox("Temperature Alerts", value=st.session_state.user_preferences['temperature_alerts'], key="temp_alerts")
-                st.checkbox("Rain Alerts", value=st.session_state.user_preferences['rain_alerts'], key="rain_alerts")
-                st.checkbox("Wind Alerts", value=st.session_state.user_preferences['wind_alerts'], key="wind_alerts")
-                st.checkbox("Air Quality Alerts", value=st.session_state.user_preferences['air_quality_alerts'], key="air_alerts")
-                
-            with tab4:
-                st.session_state.auto_refresh = st.checkbox("Auto-refresh data", value=st.session_state.auto_refresh)
-                if st.session_state.auto_refresh:
-                    st.session_state.refresh_interval = st.selectbox(
-                        "Refresh interval",
-                        [300, 600, 900, 1800],
-                        format_func=lambda x: f"{x//60} minutes"
-                    ) * 1000
-                    
-                if st.button("🔄 Refresh Now", key="manual_refresh"):
-                    if st.session_state.location_data:
-                        self.fetch_weather_data(
-                            st.session_state.location_data['lat'],
-                            st.session_state.location_data['lon']
-                        )
-                        st.rerun()
-    
-    def show_favorites_modal(self):
-        """Show favorites management modal"""
-        with st.expander("⭐ Favorite Locations", expanded=True):
-            if st.session_state.favorite_locations:
-                for i, location in enumerate(st.session_state.favorite_locations):
-                    col1, col2, col3 = st.columns([3, 1, 1])
-                    with col1:
-                        st.write(f"📍 {location['city']}, {location['country']}")
-                    with col2:
-                        if st.button("Load", key=f"load_fav_{i}", use_container_width=True):
-                            st.session_state.location_data = location
-                            self.fetch_weather_data(location['lat'], location['lon'])
-                            st.rerun()
-                    with col3:
-                        if st.button("Remove", key=f"remove_fav_{i}", use_container_width=True):
-                            st.session_state.favorite_locations.pop(i)
-                            st.rerun()
-            else:
-                st.info("No favorite locations saved yet.")
-                
-            # Add current location to favorites
-            if st.session_state.location_data:
-                if st.button("⭐ Add Current Location to Favorites", use_container_width=True):
-                    if st.session_state.location_data not in st.session_state.favorite_locations:
-                        st.session_state.favorite_locations.append(st.session_state.location_data)
-                        st.success("Location added to favorites!")
-                        time.sleep(1)
-                        st.rerun()
-    
-    def render_location_search(self):
-        """Enhanced location search with autocomplete"""
-        st.markdown('<div class="premium-search">', unsafe_allow_html=True)
+            with col2:
+                if st.button("⭐ Add Favorite", use_container_width=True):
+                    self.add_current_to_favorites()
+            
+            # Location shortcuts
+            st.markdown("### 📍 Quick Locations")
+            quick_locations = [
+                ("🏠 Current", "auto"),
+                ("🗽 New York", "New York, US"),
+                ("🏛️ London", "London, UK"),
+                ("🗼 Tokyo", "Tokyo, JP"),
+                ("🦘 Sydney", "Sydney, AU")
+            ]
+            
+            for name, location in quick_locations:
+                if st.button(name, key=f"quick_{location}", use_container_width=True):
+                    self.handle_quick_location(location)
+                    st.rerun()
+            
+            st.markdown("---")
+            
+            # Settings section
+            st.markdown("### ⚙️ Settings")
+            
+            # Theme selector
+            new_theme = st.selectbox(
+                "Theme",
+                ["premium_dark", "premium_light", "aurora", "sunset", "ocean"],
+                index=["premium_dark", "premium_light", "aurora", "sunset", "ocean"].index(
+                    st.session_state.theme_mode
+                )
+            )
+            if new_theme != st.session_state.theme_mode:
+                st.session_state.theme_mode = new_theme
+                st.rerun()
+            
+            # Units selector
+            new_units = st.selectbox(
+                "Units",
+                ["metric", "imperial", "kelvin"],
+                format_func=lambda x: {"metric": "Metric (°C)", "imperial": "Imperial (°F)", "kelvin": "Scientific (K)"}[x]
+            )
+            if new_units != st.session_state.units:
+                st.session_state.units = new_units
+                self.refresh_weather_data()
+                st.rerun()
+            
+            # Premium features toggles
+            st.session_state.animation_enabled = st.checkbox("🎭 Animations", value=st.session_state.animation_enabled)
+            st.session_state.auto_refresh = st.checkbox("🔄 Auto Refresh", value=st.session_state.auto_refresh)
+            st.session_state.notifications_enabled = st.checkbox("🔔 Notifications", value=st.session_state.notifications_enabled)
+            
+            # Status indicators
+            st.markdown("---")
+            st.markdown("### 📊 System Status")
+            
+            # API status
+            api_status = self.weather_api.api_key
+            status_color = "🟢" if api_status[0] else "🔴"
+            st.markdown(f"{status_color} **API Status:** {api_status[1]}")
+            
+            # Data freshness
+            if st.session_state.last_update:
+                time_diff = datetime.now() - st.session_state.last_update
+                freshness = "🟢 Fresh" if time_diff.seconds < 300 else "🟡 Aging" if time_diff.seconds < 900 else "🔴 Stale"
+                st.markdown(f"{freshness} **Data:** {time_diff.seconds//60}m ago")
+            
+            # Usage stats
+            stats = st.session_state.app_usage_stats
+            st.markdown(f"📈 **Sessions:** {stats['sessions']}")
+            st.markdown(f"🌍 **Locations:** {stats['locations_searched']}")
+            
+    def render_content_area(self):
+        """Render main content area based on current view"""
         
-        col1, col2 = st.columns([3, 1])
+        # Premium header
+        self.render_premium_header()
+        
+        # Content routing
+        if st.session_state.current_view == 'dashboard':
+            self.render_dashboard_view()
+        elif st.session_state.current_view == 'forecast':
+            self.render_forecast_view()
+        elif st.session_state.current_view == 'radar':
+            self.render_radar_view()
+        elif st.session_state.current_view == 'maps':
+            self.render_maps_view()
+        elif st.session_state.current_view == 'analytics':
+            self.render_analytics_view()
+        elif st.session_state.current_view == 'compare':
+            self.render_compare_view()
+        elif st.session_state.current_view == 'alerts':
+            self.render_alerts_view()
+        elif st.session_state.current_view == 'historical':
+            self.render_historical_view()
+            
+    def render_premium_header(self):
+        """Render premium application header"""
+        col1, col2, col3 = st.columns([2, 3, 2])
         
         with col1:
-            search_query = st.text_input(
-                "",
-                placeholder="🔍 Search for a city, country, or coordinates... (e.g., New York, London, 40.7128,-74.0060)",
-                key="location_search",
-                label_visibility="collapsed"
-            )
-            
+            if st.session_state.location_data:
+                location = st.session_state.location_data
+                st.markdown(f"""
+                    <div style="
+                        background: rgba(255, 255, 255, 0.05);
+                        padding: 12px 20px;
+                        border-radius: 12px;
+                        border: 1px solid rgba(255, 255, 255, 0.1);
+                    ">
+                        <div style="color: white; font-weight: 600; font-size: 16px;">
+                            📍 {location['city']}, {location['country']}
+                        </div>
+                        <div style="color: rgba(255, 255, 255, 0.6); font-size: 12px;">
+                            {location['lat']:.4f}, {location['lon']:.4f}
+                        </div>
+                    </div>
+                """, unsafe_allow_html=True)
+        
         with col2:
-            search_clicked = st.button("🔍 Search", key="search_btn", use_container_width=True)
-            
+            # Premium search bar
+            self.render_premium_search(suffix="_header")
+        
+        with col3:
+            # Current time and weather summary
+            now = datetime.now()
+            if st.session_state.weather_data:
+                temp = st.session_state.weather_data['main']['temp']
+                condition = st.session_state.weather_data['weather'][0]['description'].title()
+                temp_unit = "°C" if st.session_state.units == "metric" else "°F"
+                
+                st.markdown(f"""
+                    <div style="text-align: right;">
+                        <div style="color: white; font-weight: 600; font-size: 16px;">
+                            {temp:.0f}{temp_unit} • {condition}
+                        </div>
+                        <div style="color: rgba(255, 255, 255, 0.6); font-size: 12px;">
+                            {now.strftime('%H:%M, %A %d %B')}
+                        </div>
+                    </div>
+                """, unsafe_allow_html=True)
+    
+    def render_premium_search(self, suffix=""):
+        """Render premium search interface"""
+        st.markdown('<div class="premium-search-container">', unsafe_allow_html=True)
+        
+        search_query = st.text_input(
+            "",
+            placeholder="🔍 Search locations, coordinates, or points of interest...",
+            key="premium_search{suffix}",
+            label_visibility="collapsed"
+        )
+        
+        if search_query:
+            suggestions = self.location_detector.get_location_suggestions(search_query)
+            if suggestions:
+                selected = st.selectbox(
+                    "Suggestions",
+                    suggestions,
+                    format_func=lambda x: x['display_name'],
+                    key="search_suggestions",
+                    label_visibility="collapsed"
+                )
+                
+                if st.button("🎯 Go to Location", use_container_width=True):
+                    self.handle_location_selection(selected)
+                    st.rerun()
+        
         st.markdown('</div>', unsafe_allow_html=True)
-        
-        # Quick location buttons
-        col1, col2, col3, col4 = st.columns(4)
-        quick_locations = [
-            {"name": "📍 Auto-detect", "action": "auto"},
-            {"name": "🗽 New York", "query": "New York, US"},
-            {"name": "🏛️ London", "query": "London, UK"},
-            {"name": "🗼 Tokyo", "query": "Tokyo, JP"}
-        ]
-        
-        for i, location in enumerate(quick_locations):
-            col = [col1, col2, col3, col4][i]
-            with col:
-                if st.button(location["name"], key=f"quick_{i}", use_container_width=True):
-                    if location["action"] == "auto":
-                        if self.detect_location():
-                            lat, lon = st.session_state.location_data['lat'], st.session_state.location_data['lon']
-                            if self.fetch_weather_data(lat, lon):
-                                st.rerun()
-                    else:
-                        location_data = self.location_detector.search_location(location["query"])
-                        if location_data:
-                            st.session_state.location_data = location_data
-                            lat, lon = location_data['lat'], location_data['lon']
-                            if self.fetch_weather_data(lat, lon):
-                                st.rerun()
-                                
-        # Handle manual search
-        if search_clicked and search_query:
-            # Check if it's coordinates
-            if ',' in search_query and search_query.replace(',', '').replace('.', '').replace('-', '').replace(' ', '').isdigit():
-                try:
-                    coords = search_query.split(',')
-                    lat, lon = float(coords[0].strip()), float(coords[1].strip())
-                    if self.location_detector.validate_coordinates(lat, lon):
-                        # Reverse geocode to get location name
-                        location_data = self.location_detector.reverse_geocode(lat, lon)
-                        if location_data:
-                            st.session_state.location_data = location_data
-                            if self.fetch_weather_data(lat, lon):
-                                st.rerun()
-                        else:
-                            st.error("❌ Could not find location for these coordinates")
-                    else:
-                        st.error("❌ Invalid coordinates")
-                except:
-                    st.error("❌ Invalid coordinate format")
-            else:
-                # Regular location search
-                location_data = self.location_detector.search_location(search_query)
-                if location_data:
-                    st.session_state.location_data = location_data
-                    lat, lon = location_data['lat'], location_data['lon']
-                    if self.fetch_weather_data(lat, lon):
-                        st.rerun()
-                else:
-                    st.error(f"❌ Could not find location: {search_query}")
-                    
-    def render_current_weather(self):
-        """Enhanced current weather display"""
+    
+    def render_dashboard_view(self):
+        """Render premium dashboard with customizable widgets"""
         if not st.session_state.weather_data:
+            self.render_welcome_screen()
             return
-            
+        
+        # Hero weather section
+        self.render_hero_weather_section()
+        
+        # Customizable widget grid
+        st.markdown("### 📊 Weather Intelligence Dashboard")
+        
+        # Widget configuration
+        available_widgets = {
+            'current_weather': 'Current Conditions',
+            'hourly_forecast': '24-Hour Forecast',
+            'weekly_forecast': '7-Day Forecast',
+            'air_quality': 'Air Quality Index',
+            'uv_index': 'UV Index & Solar',
+            'pressure_trends': 'Atmospheric Pressure',
+            'wind_analysis': 'Wind Conditions',
+            'precipitation': 'Precipitation Radar',
+            'satellite': 'Satellite Imagery',
+            'alerts': 'Weather Alerts'
+        }
+        
+        # Widget selector
+        col1, col2 = st.columns([3, 1])
+        with col2:
+            selected_widgets = st.multiselect(
+                "Customize Dashboard",
+                list(available_widgets.keys()),
+                default=st.session_state.dashboard_widgets,
+                format_func=lambda x: available_widgets[x]
+            )
+            st.session_state.dashboard_widgets = selected_widgets
+        
+        # Render selected widgets
+        if selected_widgets:
+            # Create responsive grid
+            cols_per_row = 2
+            for i in range(0, len(selected_widgets), cols_per_row):
+                cols = st.columns(cols_per_row)
+                for j, widget in enumerate(selected_widgets[i:i+cols_per_row]):
+                    with cols[j]:
+                        self.render_widget(widget)
+        
+    def render_widget(self, widget_type):
+        """Render individual dashboard widgets"""
+        with st.container():
+            if widget_type == 'current_weather':
+                self.render_current_weather_widget()
+            elif widget_type == 'hourly_forecast':
+                self.render_hourly_forecast_widget()
+            elif widget_type == 'weekly_forecast':
+                self.render_weekly_forecast_widget()
+            elif widget_type == 'air_quality':
+                self.render_air_quality_widget()
+            elif widget_type == 'uv_index':
+                self.render_uv_index_widget()
+            elif widget_type == 'pressure_trends':
+                self.render_pressure_trends_widget()
+            elif widget_type == 'wind_analysis':
+                self.render_wind_analysis_widget()
+            elif widget_type == 'precipitation':
+                self.render_precipitation_widget()
+            elif widget_type == 'satellite':
+                self.render_satellite_widget()
+            elif widget_type == 'alerts':
+                self.render_alerts_widget()
+    
+    def render_hero_weather_section(self):
+        """Render the main hero weather display"""
         weather = st.session_state.weather_data
         location = st.session_state.location_data
         
-        # Main weather card
-        st.markdown('<div class="premium-weather-card">', unsafe_allow_html=True)
+        # Create hero section with premium styling
+        st.markdown("""
+            <div style="
+                background: linear-gradient(135deg, rgba(0, 212, 255, 0.1), rgba(124, 58, 237, 0.1));
+                border-radius: 24px;
+                padding: 40px;
+                margin: 20px 0;
+                border: 1px solid rgba(255, 255, 255, 0.1);
+                backdrop-filter: blur(20px);
+                position: relative;
+                overflow: hidden;
+            ">
+        """, unsafe_allow_html=True)
         
-        col1, col2, col3 = st.columns([2, 1, 1])
+        col1, col2, col3 = st.columns([1, 2, 1])
         
         with col1:
-            st.markdown(f"""
-                <div class="location-info">
-                    <h2>📍 {location['city']}, {location['country']}</h2>
-                    <p class="timestamp">Last updated: {st.session_state.last_update.strftime('%H:%M, %d %B %Y')}</p>
-                    <div style="margin-top: 1rem;">
-                        <span style="color: rgba(255,255,255,0.7); font-size: 0.9rem;">
-                            🌐 {location['lat']:.4f}, {location['lon']:.4f}
-                        </span>
-                    </div>
-                </div>
-            """, unsafe_allow_html=True)
-            
-        with col2:
-            temp_unit = "°C" if st.session_state.units == "metric" else "°F" if st.session_state.units == "imperial" else "K"
-            feels_like = weather['main']['feels_like']
-            
-            st.markdown(f"""
-                <div class="temperature-showcase">
-                    <span class="temp-main">{weather['main']['temp']:.1f}{temp_unit}</span>
-                    <span class="temp-desc">{weather['weather'][0]['description'].title()}</span>
-                    <div style="margin-top: 0.5rem; font-size: 0.9rem; color: rgba(255,255,255,0.7);">
-                        Feels like {feels_like:.1f}{temp_unit}
-                    </div>
-                </div>
-            """, unsafe_allow_html=True)
-            
-        with col3:
-            # Enhanced weather icon
+            # Weather icon with animation
             icon_code = weather['weather'][0]['icon']
             condition = weather['weather'][0]['main'].lower()
             st.markdown(
-                self.ui.create_weather_icon_enhanced(icon_code, condition), 
+                self.ui.create_animated_weather_icon(icon_code, condition, size="120px"),
                 unsafe_allow_html=True
             )
+        
+        with col2:
+            # Main temperature and condition
+            temp_unit = "°C" if st.session_state.units == "metric" else "°F"
+            temp = weather['main']['temp']
+            condition = weather['weather'][0]['description'].title()
+            feels_like = weather['main']['feels_like']
             
-        st.markdown('</div>', unsafe_allow_html=True)
+            st.markdown(f"""
+                <div style="text-align: center;">
+                    <div style="
+                        font-size: 4rem;
+                        font-weight: 800;
+                        background: linear-gradient(135deg, #ffffff, #e2e8f0);
+                        -webkit-background-clip: text;
+                        -webkit-text-fill-color: transparent;
+                        line-height: 0.9;
+                        margin-bottom: 10px;
+                    ">{temp:.0f}{temp_unit}</div>
+                    <div style="
+                        font-size: 1.5rem;
+                        color: rgba(255, 255, 255, 0.9);
+                        margin-bottom: 10px;
+                        font-weight: 500;
+                    ">{condition}</div>
+                    <div style="
+                        font-size: 1rem;
+                        color: rgba(255, 255, 255, 0.6);
+                    ">Feels like {feels_like:.0f}{temp_unit}</div>
+                </div>
+            """, unsafe_allow_html=True)
         
-        # Enhanced weather details
-        self.render_weather_details_premium(weather)
+        with col3:
+            # Quick stats
+            humidity = weather['main']['humidity']
+            wind_speed = weather['wind']['speed']
+            pressure = weather['main']['pressure']
+            
+            st.markdown(f"""
+                <div style="text-align: center;">
+                    <div style="margin-bottom: 15px;">
+                        <div style="color: rgba(255, 255, 255, 0.6); font-size: 0.8rem;">HUMIDITY</div>
+                        <div style="color: white; font-size: 1.2rem; font-weight: 600;">{humidity}%</div>
+                    </div>
+                    <div style="margin-bottom: 15px;">
+                        <div style="color: rgba(255, 255, 255, 0.6); font-size: 0.8rem;">WIND</div>
+                        <div style="color: white; font-size: 1.2rem; font-weight: 600;">{wind_speed:.1f} m/s</div>
+                    </div>
+                    <div>
+                        <div style="color: rgba(255, 255, 255, 0.6); font-size: 0.8rem;">PRESSURE</div>
+                        <div style="color: white; font-size: 1.2rem; font-weight: 600;">{pressure} hPa</div>
+                    </div>
+                </div>
+            """, unsafe_allow_html=True)
         
-        # Weather insights and recommendations
-        self.render_weather_insights(weather)
+        st.markdown("</div>", unsafe_allow_html=True)
         
-    def render_weather_details_premium(self, weather):
-        """Enhanced weather details with premium styling"""
-        temp_unit = "°C" if st.session_state.units == "metric" else "°F" if st.session_state.units == "imperial" else "K"
-        speed_unit = "m/s" if st.session_state.units == "metric" else "mph"
+        # Quick metrics bar
+        self.render_quick_metrics_bar()
+    
+    def render_quick_metrics_bar(self):
+        """Render quick metrics below hero section"""
+        weather = st.session_state.weather_data
         
-        st.markdown('<div class="premium-details-grid">', unsafe_allow_html=True)
-        
-        # Calculate additional metrics
-        dew_point = weather['main']['temp'] - ((100 - weather['main']['humidity']) / 5)
-        heat_index = self.data_processor.calculate_comfort_index(
-            weather['main']['temp'], 
-            weather['main']['humidity'], 
-            weather['wind']['speed']
-        )
-        
-        wind_direction = self.data_processor.format_wind_direction(weather['wind'].get('deg', 0))
-        
-        details = [
-            ("🌡️", "Feels Like", f"{weather['main']['feels_like']:.1f}", temp_unit, "Apparent temperature"),
-            ("💧", "Humidity", f"{weather['main']['humidity']}", "%", "Relative humidity"),
-            ("🌬️", "Wind", f"{weather['wind']['speed']:.1f} {speed_unit}", f"{wind_direction}", "Wind speed & direction"),
-            ("👁️", "Visibility", f"{weather.get('visibility', 0)/1000:.1f}", "km", "Horizontal visibility"),
-            ("🌅", "Sunrise", datetime.fromtimestamp(weather['sys']['sunrise']).strftime('%H:%M'), "", "Local sunrise time"),
-            ("🌇", "Sunset", datetime.fromtimestamp(weather['sys']['sunset']).strftime('%H:%M'), "", "Local sunset time"),
-            ("📊", "Pressure", f"{weather['main']['pressure']}", "hPa", "Atmospheric pressure"),
-            ("☁️", "Cloudiness", f"{weather['clouds']['all']}", "%", "Cloud coverage"),
-            ("💎", "Dew Point", f"{dew_point:.1f}", temp_unit, "Dew point temperature"),
-            ("🎯", "Comfort Index", f"{heat_index['score']:.0f}/100", f"({heat_index['level']})", "Weather comfort rating"),
-            ("🌡️", "Min/Max", f"{weather['main']['temp_min']:.1f}/{weather['main']['temp_max']:.1f}", temp_unit, "Daily temperature range"),
-            ("⚡", "UV Index", "Calculating...", "", "UV radiation level")
+        metrics = [
+            ("🌡️", "Feels Like", f"{weather['main']['feels_like']:.0f}°", "Apparent temperature"),
+            ("👁️", "Visibility", f"{weather.get('visibility', 10000)/1000:.1f} km", "Horizontal visibility"),
+            ("☁️", "Clouds", f"{weather['clouds']['all']}%", "Cloud coverage"),
+            ("🌅", "Sunrise", datetime.fromtimestamp(weather['sys']['sunrise']).strftime('%H:%M'), "Local sunrise"),
+            ("🌇", "Sunset", datetime.fromtimestamp(weather['sys']['sunset']).strftime('%H:%M'), "Local sunset"),
+            ("🧭", "Direction", self.data_processor.format_wind_direction(weather['wind'].get('deg', 0)), "Wind direction")
         ]
         
-        cols = st.columns(4)
-        for i, (icon, label, value, unit, description) in enumerate(details):
-            col = cols[i % 4]
-            with col:
-                st.markdown(
-                    self.ui.create_metric_card_premium(icon, label, value, unit, description=description),
-                    unsafe_allow_html=True
-                )
-                
-        st.markdown('</div>', unsafe_allow_html=True)
-        
-    def render_weather_insights(self, weather):
-        """Render AI-powered weather insights and recommendations"""
-        if not st.session_state.forecast_data:
-            return
-            
-        forecast_processed = self.data_processor.process_forecast_data(
-            st.session_state.forecast_data, 
-            st.session_state.units
-        )
-        
-        recommendations = self.data_processor.get_weather_recommendations(weather, forecast_processed)
-        alerts = self.data_processor.get_weather_alerts(weather, forecast_processed)
-        
-        col1, col2 = st.columns(2)
-        
-        with col1:
-            st.markdown("""
-                <div class="glass-card" style="padding: var(--space-lg);">
-                    <h3 style="color: white; margin-bottom: var(--space-md);">🧠 Smart Recommendations</h3>
-                </div>
-            """, unsafe_allow_html=True)
-            
-            for rec in recommendations:
-                st.markdown(f"""
-                    <div class="glass-card hover-lift" style="padding: var(--space-md); margin: var(--space-sm) 0;">
-                        <p style="color: rgba(255,255,255,0.9); margin: 0; font-size: 0.9rem;">{rec}</p>
-                    </div>
-                """, unsafe_allow_html=True)
-                
-        with col2:
-            st.markdown("""
-                <div class="glass-card" style="padding: var(--space-lg);">
-                    <h3 style="color: white; margin-bottom: var(--space-md);">⚠️ Weather Alerts</h3>
-                </div>
-            """, unsafe_allow_html=True)
-            
-            if alerts:
-                for alert in alerts:
-                    alert_colors = {
-                        'warning': '#f59e0b',
-                        'caution': '#3b82f6',
-                        'info': '#10b981'
-                    }
-                    color = alert_colors.get(alert['type'], '#6b7280')
-                    
-                    st.markdown(f"""
-                        <div class="glass-card hover-lift" style="
-                            padding: var(--space-md); 
-                            margin: var(--space-sm) 0;
-                            border-left: 4px solid {color};
-                        ">
-                            <div style="display: flex; align-items: center; gap: var(--space-sm);">
-                                <span style="font-size: 1.2rem;">{alert['icon']}</span>
-                                <div>
-                                    <strong style="color: white;">{alert['title']}</strong>
-                                    <p style="color: rgba(255,255,255,0.8); margin: 0; font-size: 0.85rem;">{alert['message']}</p>
-                                </div>
-                            </div>
-                        </div>
-                    """, unsafe_allow_html=True)
-            else:
-                st.markdown("""
-                    <div class="glass-card" style="padding: var(--space-md); text-align: center;">
-                        <p style="color: rgba(255,255,255,0.7); margin: 0;">✅ No weather alerts at this time</p>
-                    </div>
-                """, unsafe_allow_html=True)
-                
-    def render_hourly_forecast(self):
-        """Render detailed hourly forecast"""
-        if not st.session_state.hourly_data:
-            return
-            
-        st.markdown('<div class="premium-forecast">', unsafe_allow_html=True)
-        st.markdown('<h2 class="section-title">⏰ 24-Hour Detailed Forecast</h2>', unsafe_allow_html=True)
-        
-        # Create interactive hourly chart
-        hourly_data = st.session_state.hourly_data[:24]
-        
-        # Temperature and precipitation chart
-        fig = go.Figure()
-        
-        times = [item['hour'] for item in hourly_data]
-        temps = [item['temp'] for item in hourly_data]
-        feels_like = [item['feels_like'] for item in hourly_data]
-        precipitation = [item['pop'] for item in hourly_data]
-        
-        # Temperature line
-        fig.add_trace(go.Scatter(
-            x=times, y=temps,
-            mode='lines+markers',
-            name='Temperature',
-            line=dict(color='#ff6b35', width=3),
-            marker=dict(size=6, color='#ff6b35'),
-            hovertemplate='<b>%{x}</b><br>Temperature: %{y}°<extra></extra>'
-        ))
-        
-        # Feels like line
-        fig.add_trace(go.Scatter(
-            x=times, y=feels_like,
-            mode='lines',
-            name='Feels Like',
-            line=dict(color='#4facfe', width=2, dash='dash'),
-            hovertemplate='<b>%{x}</b><br>Feels Like: %{y}°<extra></extra>'
-        ))
-        
-        # Precipitation bars
-        fig.add_trace(go.Bar(
-            x=times, y=precipitation,
-            name='Precipitation %',
-            yaxis='y2',
-            marker_color='rgba(6, 255, 165, 0.3)',
-            hovertemplate='<b>%{x}</b><br>Precipitation: %{y}%<extra></extra>'
-        ))
-        
-        temp_unit = "°C" if st.session_state.units == "metric" else "°F" if st.session_state.units == "imperial" else "K"
-        
-        fig.update_layout(
-            title=f"Hourly Temperature & Precipitation Forecast",
-            xaxis_title="Time",
-            yaxis_title=f"Temperature ({temp_unit})",
-            yaxis2=dict(
-                title="Precipitation (%)",
-                overlaying='y',
-                side='right',
-                range=[0, 100]
-            ),
-            hovermode='x unified',
-            template='plotly_dark',
-            plot_bgcolor='rgba(0,0,0,0)',
-            paper_bgcolor='rgba(0,0,0,0)',
-            font=dict(color='white'),
-            height=400,
-            showlegend=True,
-            legend=dict(
-                orientation="h",
-                yanchor="bottom",
-                y=1.02,
-                xanchor="right",
-                x=1
-            )
-        )
-        
-        st.plotly_chart(fig, use_container_width=True)
-        
-        # Hourly cards grid
-        st.markdown('<div class="forecast-grid">', unsafe_allow_html=True)
-        
-        cols = st.columns(6)
-        for i, hour_data in enumerate(hourly_data[:12]):  # Show first 12 hours
-            col = cols[i % 6]
-            with col:
-                self.render_hourly_card(hour_data)
-                
-        st.markdown('</div>', unsafe_allow_html=True)
-        st.markdown('</div>', unsafe_allow_html=True)
-        
-    def render_hourly_card(self, hour_data):
-        """Render individual hourly forecast card"""
-        temp_unit = "°C" if st.session_state.units == "metric" else "°F" if st.session_state.units == "imperial" else "K"
-        
-        st.markdown(f"""
-            <div class="forecast-card">
-                <div class="forecast-day">{hour_data['hour']}</div>
-                <div class="forecast-icon">
-                    <img src="http://openweathermap.org/img/wn/{hour_data['icon']}@2x.png" />
-                </div>
-                <div class="forecast-temps">
-                    <span class="temp-high">{hour_data['temp']:.0f}{temp_unit}</span>
-                </div>
-                <div class="forecast-desc">{hour_data['description']}</div>
-                <div class="forecast-details">
-                    <div>💧 {hour_data['pop']:.0f}%</div>
-                    <div>🌬️ {hour_data['wind_speed']:.0f}</div>
-                </div>
-            </div>
-        """, unsafe_allow_html=True)
-        
-    def render_forecast(self):
-        """Enhanced 5-day forecast with advanced features"""
-        if not st.session_state.forecast_data:
-            return
-            
-        st.markdown('<div class="premium-forecast">', unsafe_allow_html=True)
-        st.markdown('<h2 class="section-title">📅 5-Day Weather Forecast</h2>', unsafe_allow_html=True)
-        
-        # Process forecast data
-        forecast_processed = self.data_processor.process_forecast_data(
-            st.session_state.forecast_data, 
-            st.session_state.units
-        )
-        
-        # Forecast cards
-        st.markdown('<div class="forecast-grid">', unsafe_allow_html=True)
-        
-        cols = st.columns(5)
-        for i, day_data in enumerate(forecast_processed[:5]):
+        cols = st.columns(len(metrics))
+        for i, (icon, label, value, description) in enumerate(metrics):
             with cols[i]:
-                self.render_forecast_card_premium(day_data, i == 0)
-                
-        st.markdown('</div>', unsafe_allow_html=True)
-        
-        # Advanced temperature and weather trends chart
-        self.render_advanced_temperature_chart(forecast_processed)
-        
-        # Weather trends analysis
-        trends = self.data_processor.calculate_weather_trends(forecast_processed)
-        self.render_trends_analysis(trends)
-        
-        st.markdown('</div>', unsafe_allow_html=True)
-        
-    def render_forecast_card_premium(self, day_data, is_today=False):
-        """Render premium forecast card with enhanced details"""
-        temp_unit = "°C" if st.session_state.units == "metric" else "°F" if st.session_state.units == "imperial" else "K"
-        
-        today_class = "today-highlight" if is_today else ""
-        day_label = "Today" if is_today else day_data['day']
-        
-        st.markdown(f"""
-            <div class="forecast-card {today_class}">
-                <div class="forecast-day">{day_label}</div>
-                <div class="forecast-date">{day_data['date'].strftime('%m/%d')}</div>
-                <div class="forecast-icon">
-                    <img src="http://openweathermap.org/img/wn/{day_data['icon']}@2x.png" />
-                </div>
-                <div class="forecast-temps">
-                    <span class="temp-high">{day_data['temp_max']:.0f}{temp_unit}</span>
-                    <span class="temp-low">{day_data['temp_min']:.0f}{temp_unit}</span>
-                </div>
-                <div class="forecast-desc">{day_data['description']}</div>
-                <div class="forecast-details">
-                    <div style="display: flex; justify-content: space-between; margin-top: 0.5rem;">
-                        <span>💧 {day_data['humidity']:.0f}%</span>
-                        <span>🌬️ {day_data['wind_speed']:.0f}</span>
+                st.markdown(f"""
+                    <div class="metric-card" style="text-align: center; padding: 16px;">
+                        <div class="metric-icon">{icon}</div>
+                        <div class="metric-value" style="font-size: 18px;">{value}</div>
+                        <div class="metric-label" style="font-size: 11px;">{label}</div>
                     </div>
-                </div>
-            </div>
-            
-            <style>
-            .today-highlight {{
-                border: 2px solid var(--primary) !important;
-                background: rgba(0, 212, 255, 0.1) !important;
-                transform: scale(1.02);
-            }}
-            
-            .forecast-date {{
-                font-size: 0.75rem;
-                color: rgba(255, 255, 255, 0.6);
-                margin-bottom: 0.5rem;
-            }}
-            </style>
-        """, unsafe_allow_html=True)
-        
-    def render_advanced_temperature_chart(self, forecast_data):
-        """Render advanced temperature chart with multiple metrics"""
-        st.markdown('<div class="premium-chart">', unsafe_allow_html=True)
-        st.markdown('<h3 class="section-title">📈 Advanced Weather Trends</h3>', unsafe_allow_html=True)
-        
-        # Prepare data
-        dates = [item['date'].strftime('%m/%d') for item in forecast_data]
-        temp_max = [item['temp_max'] for item in forecast_data]
-        temp_min = [item['temp_min'] for item in forecast_data]
-        temp_avg = [item['temp_avg'] for item in forecast_data]
-        humidity = [item['humidity'] for item in forecast_data]
-        wind_speed = [item['wind_speed'] for item in forecast_data]
-        
-        # Create subplots
-        from plotly.subplots import make_subplots
-        
-        fig = make_subplots(
-            rows=3, cols=1,
-            subplot_titles=('Temperature Trends', 'Humidity Levels', 'Wind Speed'),
-            vertical_spacing=0.08,
-            specs=[[{"secondary_y": False}],
-                   [{"secondary_y": False}],
-                   [{"secondary_y": False}]]
-        )
-        
-        # Temperature plot
-        fig.add_trace(go.Scatter(
-            x=dates, y=temp_max,
-            mode='lines+markers',
-            name='Max Temp',
-            line=dict(color='#ff6b6b', width=3),
-            marker=dict(size=8)
-        ), row=1, col=1)
-        
-        fig.add_trace(go.Scatter(
-            x=dates, y=temp_min,
-            mode='lines+markers',
-            name='Min Temp',
-            line=dict(color='#4ecdc4', width=3),
-            marker=dict(size=8)
-        ), row=1, col=1)
-        
-        fig.add_trace(go.Scatter(
-            x=dates, y=temp_avg,
-            mode='lines+markers',
-            name='Avg Temp',
-            line=dict(color='#feca57', width=2, dash='dash'),
-            marker=dict(size=6)
-        ), row=1, col=1)
-        
-        # Fill area between max and min
-        fig.add_trace(go.Scatter(
-            x=dates + dates[::-1],
-            y=temp_max + temp_min[::-1],
-            fill='toself',
-            fillcolor='rgba(78, 205, 196, 0.1)',
-            line=dict(color='rgba(255,255,255,0)'),
-            showlegend=False,
-            name='Temperature Range'
-        ), row=1, col=1)
-        
-        # Humidity plot
-        fig.add_trace(go.Scatter(
-            x=dates, y=humidity,
-            mode='lines+markers',
-            name='Humidity',
-            line=dict(color='#00d4ff', width=3),
-            marker=dict(size=8),
-            showlegend=False
-        ), row=2, col=1)
-        
-        # Wind speed plot
-        fig.add_trace(go.Scatter(
-            x=dates, y=wind_speed,
-            mode='lines+markers',
-            name='Wind Speed',
-            line=dict(color='#7c3aed', width=3),
-            marker=dict(size=8),
-            showlegend=False
-        ), row=3, col=1)
-        
-        temp_unit = "°C" if st.session_state.units == "metric" else "°F" if st.session_state.units == "imperial" else "K"
-        speed_unit = "m/s" if st.session_state.units == "metric" else "mph"
-        
-        fig.update_yaxes(title_text=f"Temperature ({temp_unit})", row=1, col=1)
-        fig.update_yaxes(title_text="Humidity (%)", row=2, col=1)
-        fig.update_yaxes(title_text=f"Wind Speed ({speed_unit})", row=3, col=1)
-        
-        fig.update_layout(
-            height=800,
-            template='plotly_dark',
-            plot_bgcolor='rgba(0,0,0,0)',
-            paper_bgcolor='rgba(0,0,0,0)',
-            font=dict(color='white'),
-            showlegend=True,
-            legend=dict(
-                orientation="h",
-                yanchor="bottom",
-                y=1.02,
-                xanchor="right",
-                x=1
-            )
-        )
-        
-        st.plotly_chart(fig, use_container_width=True)
-        st.markdown('</div>', unsafe_allow_html=True)
-        
-    def render_trends_analysis(self, trends):
-        """Render weather trends analysis"""
+                """, unsafe_allow_html=True)
+    
+    def render_welcome_screen(self):
+        """Render premium welcome screen"""
         st.markdown("""
-            <div class="glass-card" style="padding: var(--space-lg); margin: var(--space-lg) 0;">
-                <h3 style="color: white; margin-bottom: var(--space-md);">📊 Weather Trends Analysis</h3>
+            <div style="
+                text-align: center;
+                padding: 60px 40px;
+                background: linear-gradient(135deg, rgba(0, 212, 255, 0.1), rgba(124, 58, 237, 0.1));
+                border-radius: 24px;
+                border: 1px solid rgba(255, 255, 255, 0.1);
+                backdrop-filter: blur(20px);
+                margin: 40px 0;
+            ">
+                <h1 style="
+                    font-size: 3rem;
+                    font-weight: 800;
+                    background: linear-gradient(135deg, var(--primary), var(--accent));
+                    -webkit-background-clip: text;
+                    -webkit-text-fill-color: transparent;
+                    margin-bottom: 20px;
+                ">🌤️ Welcome to Climatrack Premium</h1>
+                <p style="
+                    font-size: 1.2rem;
+                    color: rgba(255, 255, 255, 0.8);
+                    margin-bottom: 30px;
+                    max-width: 600px;
+                    margin-left: auto;
+                    margin-right: auto;
+                    line-height: 1.6;
+                ">
+                    Experience the world's most advanced weather intelligence platform with AI-powered insights,
+                    premium visualizations, and real-time global weather data.
+                </p>
             </div>
         """, unsafe_allow_html=True)
         
+        # Feature highlights
         col1, col2, col3 = st.columns(3)
         
-        with col1:
-            temp_trend = trends.get('temperature', {})
-            trend_icon = "📈" if temp_trend.get('max_trend') == 'increasing' else "📉" if temp_trend.get('max_trend') == 'decreasing' else "➡️"
-            
-            st.markdown(f"""
-                <div class="glass-card hover-lift" style="padding: var(--space-md); text-align: center;">
-                    <div style="font-size: 2rem; margin-bottom: var(--space-sm);">{trend_icon}</div>
-                    <h4 style="color: white; margin-bottom: var(--space-sm);">Temperature</h4>
-                    <p style="color: rgba(255,255,255,0.8); margin: 0; font-size: 0.9rem;">
-                        {temp_trend.get('max_trend', 'stable').title()} trend<br>
-                        Range: {temp_trend.get('max_change', 0):.1f}° variation
-                    </p>
-                </div>
-            """, unsafe_allow_html=True)
-            
-        with col2:
-            humidity_trend = trends.get('humidity', {})
-            humidity_icon = "💧" if humidity_trend.get('avg', 0) > 70 else "🏜️" if humidity_trend.get('avg', 0) < 30 else "💨"
-            
-            st.markdown(f"""
-                <div class="glass-card hover-lift" style="padding: var(--space-md); text-align: center;">
-                    <div style="font-size: 2rem; margin-bottom: var(--space-sm);">{humidity_icon}</div>
-                    <h4 style="color: white; margin-bottom: var(--space-sm);">Humidity</h4>
-                    <p style="color: rgba(255,255,255,0.8); margin: 0; font-size: 0.9rem;">
-                        {humidity_trend.get('trend', 'stable').title()} pattern<br>
-                        Average: {humidity_trend.get('avg', 0):.0f}%
-                    </p>
-                </div>
-            """, unsafe_allow_html=True)
-            
-        with col3:
-            wind_trend = trends.get('wind', {})
-            wind_icon = "💨" if wind_trend.get('max', 0) > 10 else "🍃" if wind_trend.get('max', 0) > 5 else "😌"
-            
-            st.markdown(f"""
-                <div class="glass-card hover-lift" style="padding: var(--space-md); text-align: center;">
-                    <div style="font-size: 2rem; margin-bottom: var(--space-sm);">{wind_icon}</div>
-                    <h4 style="color: white; margin-bottom: var(--space-sm);">Wind</h4>
-                    <p style="color: rgba(255,255,255,0.8); margin: 0; font-size: 0.9rem;">
-                        {wind_trend.get('trend', 'stable').title()} conditions<br>
-                        Peak: {wind_trend.get('max', 0):.1f} {speed_unit}
-                    </p>
-                </div>
-            """, unsafe_allow_html=True)
-            
-    def render_air_quality_premium(self):
-        """Enhanced air quality display with detailed metrics"""
-        if not st.session_state.air_quality_data:
-            return
-            
-        st.markdown('<div class="premium-air-quality">', unsafe_allow_html=True)
-        st.markdown('<h3 class="section-title">🌬️ Air Quality Index</h3>', unsafe_allow_html=True)
+        features = [
+            ("🎯", "Precision Forecasting", "AI-powered weather predictions with unprecedented accuracy"),
+            ("🌍", "Global Coverage", "Real-time weather data from thousands of stations worldwide"),
+            ("📊", "Advanced Analytics", "Comprehensive weather trends and historical analysis"),
+        ]
         
-        aqi_data = st.session_state.air_quality_data['list'][0]
-        aqi = aqi_data['main']['aqi']
-        components = aqi_data['components']
-        
-        aqi_levels = {1: "Good", 2: "Fair", 3: "Moderate", 4: "Poor", 5: "Very Poor"}
-        aqi_colors = {1: "#4CAF50", 2: "#8BC34A", 3: "#FFC107", 4: "#FF9800", 5: "#F44336"}
-        aqi_descriptions = {
-            1: "Air quality is satisfactory for the general population",
-            2: "Air quality is acceptable for most people",
-            3: "Members of sensitive groups may experience health effects",
-            4: "Health effects may be experienced by the general population",
-            5: "Health warnings of emergency conditions for everyone"
-        }
-        
-        col1, col2 = st.columns([1, 2])
-        
-        with col1:
-            st.markdown(f"""
-                <div class="aqi-indicator" style="background: linear-gradient(135deg, {aqi_colors[aqi]}, {aqi_colors[aqi]}cc);">
-                    <div class="aqi-value">{aqi}</div>
-                    <div class="aqi-level">{aqi_levels[aqi]}</div>
-                    <div style="font-size: 0.9rem; margin-top: 0.5rem; opacity: 0.9;">
-                        AQI Score
+        for i, (icon, title, description) in enumerate(features):
+            with [col1, col2, col3][i]:
+                st.markdown(f"""
+                    <div style="
+                        text-align: center;
+                        padding: 30px 20px;
+                        background: rgba(255, 255, 255, 0.03);
+                        border-radius: 16px;
+                        border: 1px solid rgba(255, 255, 255, 0.1);
+                        backdrop-filter: blur(10px);
+                        margin: 10px 0;
+                        transition: transform 0.3s ease;
+                    ">
+                        <div style="font-size: 2.5rem; margin-bottom: 15px;">{icon}</div>
+                        <h3 style="color: white; margin-bottom: 10px; font-size: 1.1rem;">{title}</h3>
+                        <p style="color: rgba(255, 255, 255, 0.7); font-size: 0.9rem; line-height: 1.4;">{description}</p>
                     </div>
-                </div>
-            """, unsafe_allow_html=True)
-            
-        with col2:
-            st.markdown(f"""
-                <div style="padding: var(--space-lg);">
-                    <h4 style="color: white; margin-bottom: var(--space-md);">Health Advisory</h4>
-                    <p style="color: rgba(255,255,255,0.9); line-height: 1.5; margin-bottom: var(--space-md);">
-                        {aqi_descriptions[aqi]}
-                    </p>
-                    
-                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(100px, 1fr)); gap: var(--space-sm);">
-                        <div class="aqi-component">
-                            <strong>CO</strong><br>
-                            {components.get('co', 'N/A')} μg/m³
-                        </div>
-                        <div class="aqi-component">
-                            <strong>NO₂</strong><br>
-                            {components.get('no2', 'N/A')} μg/m³
-                        </div>
-                        <div class="aqi-component">
-                            <strong>O₃</strong><br>
-                            {components.get('o3', 'N/A')} μg/m³
-                        </div>
-                        <div class="aqi-component">
-                            <strong>PM2.5</strong><br>
-                            {components.get('pm2_5', 'N/A')} μg/m³
-                        </div>
-                        <div class="aqi-component">
-                            <strong>PM10</strong><br>
-                            {components.get('pm10', 'N/A')} μg/m³
-                        </div>
-                        <div class="aqi-component">
-                            <strong>SO₂</strong><br>
-                            {components.get('so2', 'N/A')} μg/m³
-                        </div>
-                    </div>
-                </div>
-            """, unsafe_allow_html=True)
-            
-        st.markdown('</div>', unsafe_allow_html=True)
+                """, unsafe_allow_html=True)
         
-    def render_weather_map(self):
-        """Render interactive weather map"""
-        if not st.session_state.location_data:
-            return
-            
-        st.markdown('<div class="premium-chart">', unsafe_allow_html=True)
-        st.markdown('<h3 class="section-title">🗺️ Interactive Weather Map</h3>', unsafe_allow_html=True)
-        
-        lat, lon = st.session_state.location_data['lat'], st.session_state.location_data['lon']
-        
-        # Create map with current location
-        fig = go.Figure(go.Scattermapbox(
-            lat=[lat],
-            lon=[lon],
-            mode='markers',
-            marker=go.scattermapbox.Marker(
-                size=20,
-                color='rgb(255, 0, 0)',
-                symbol='circle'
-            ),
-            text=[f"{st.session_state.location_data['city']}, {st.session_state.location_data['country']}"],
-            hoverinfo='text'
-        ))
-        
-        fig.update_layout(
-            mapbox_style="open-street-map",
-            mapbox=dict(
-                center=go.layout.mapbox.Center(
-                    lat=lat,
-                    lon=lon
-                ),
-                zoom=10
-            ),
-            showlegend=False,
-            height=500,
-            margin={"r":0,"t":0,"l":0,"b":0}
-        )
-        
-        st.plotly_chart(fig, use_container_width=True)
-        st.markdown('</div>', unsafe_allow_html=True)
-        
-    def render_footer(self):
-        """Render premium footer"""
-        st.markdown(f"""
-            <div class="premium-footer">
-                <p>🌤️ <strong>Climatrack Premium</strong> • Real-time Weather Intelligence Platform</p>
-                <p>Built with ❤️ by eccentriccoder01 • Powered by OpenWeatherMap API</p>
-                <p>Last updated: {datetime.now().strftime('%Y-%m-%d %H:%M:%S UTC')}</p>
-                <div style="margin-top: var(--space-md); display: flex; justify-content: center; gap: var(--space-md);">
-                    <a href="https://github.com/eccentriccoder01/climatrack" style="color: var(--primary); text-decoration: none;">🔗 GitHub</a>
-                    <a href="#" style="color: var(--primary); text-decoration: none;">📧 Support</a>
-                    <a href="#" style="color: var(--primary); text-decoration: none;">📖 Documentation</a>
-                </div>
-            </div>
-        """, unsafe_allow_html=True)
-        
-    def run(self):
-        """Main application runner with enhanced features"""
-        self.initialize_session_state()
-        self.load_custom_css()
-        
-        # Auto-refresh logic
-        if st.session_state.auto_refresh and st.session_state.location_data:
-            time.sleep(st.session_state.refresh_interval / 1000)
+        # Call to action
+        st.markdown("### 🌍 Get Started")
+        self.render_premium_search(suffix="_welcome")
+    
+    # Additional methods for other views...
+    def refresh_weather_data(self):
+        """Refresh weather data for current location"""
+        if st.session_state.location_data:
             self.fetch_weather_data(
                 st.session_state.location_data['lat'],
-                st.session_state.location_data['lon'],
-                show_loading=False
+                st.session_state.location_data['lon']
             )
-            st.rerun()
-        
-        # Header
-        self.render_header()
-        
-        # Main content based on navigation
-        if not st.session_state.weather_data:
-            # Welcome screen
-            st.markdown("""
-                <div class="glass-card" style="text-align: center; padding: var(--space-3xl) var(--space-xl); margin: var(--space-xl) 0;">
-                    <h2 style="color: white; font-size: 2.5rem; margin-bottom: var(--space-md);">🌤️ Welcome to Climatrack Premium</h2>
-                    <p style="color: rgba(255,255,255,0.8); font-size: 1.2rem; margin-bottom: var(--space-xl);">
-                        Experience the most advanced weather intelligence platform with real-time data, AI-powered insights, and premium features.
-                    </p>
-                </div>
-            """, unsafe_allow_html=True)
-            
-            self.render_location_search()
-        else:
-            # Weather dashboard based on navigation
-            if st.session_state.show_hourly:
-                self.render_hourly_forecast()
-            elif st.session_state.show_map:
-                self.render_weather_map()
+    
+    def add_current_to_favorites(self):
+        """Add current location to favorites"""
+        if st.session_state.location_data:
+            if st.session_state.location_data not in st.session_state.favorite_locations:
+                st.session_state.favorite_locations.append(st.session_state.location_data)
+                st.success("Location added to favorites!")
             else:
-                # Main dashboard
-                self.render_current_weather()
-                
-                # Forecast section
-                if st.session_state.forecast_data:
-                    self.render_forecast()
-                    
-                # Air quality section
-                if st.session_state.air_quality_data:
-                    self.render_air_quality_premium()
+                st.info("Location already in favorites!")
+    
+    def handle_quick_location(self, location):
+        """Handle quick location selection"""
+        if location == "auto":
+            if self.location_detector.get_location():
+                self.refresh_weather_data()
+        else:
+            location_data = self.location_detector.search_location(location)
+            if location_data:
+                st.session_state.location_data = location_data
+                self.refresh_weather_data()
+    
+    def handle_location_selection(self, location_data):
+        """Handle location selection from search"""
+        st.session_state.location_data = {
+            'city': location_data['city'],
+            'country': location_data['country'],
+            'lat': location_data['lat'],
+            'lon': location_data['lon']
+        }
+        st.session_state.app_usage_stats['locations_searched'] += 1
+        self.refresh_weather_data()
+    
+    def fetch_weather_data(self, lat, lon):
+        """Fetch comprehensive weather data"""
+        # Implementation similar to original but with progress tracking
+        progress_bar = st.progress(0)
+        status_text = st.empty()
+        
+        try:
+            # Current weather
+            status_text.text("☁️ Fetching current conditions...")
+            progress_bar.progress(20)
+            current_weather = self.weather_api.get_current_weather(lat, lon, st.session_state.units)
             
-            # Always show location search at bottom
-            st.markdown("---")
-            st.markdown("### 🔍 Search Another Location")
-            self.render_location_search()
+            # Forecast
+            status_text.text("📅 Loading forecast data...")
+            progress_bar.progress(50)
+            forecast = self.weather_api.get_forecast(lat, lon, st.session_state.units)
             
-        # Footer
-        self.render_footer()
+            # Air quality
+            status_text.text("🌬️ Checking air quality...")
+            progress_bar.progress(80)
+            air_quality = self.weather_api.get_air_quality(lat, lon)
+            
+            # Store data
+            if current_weather:
+                st.session_state.weather_data = current_weather
+            if forecast:
+                st.session_state.forecast_data = forecast
+                st.session_state.hourly_data = self.data_processor.process_hourly_data(forecast)
+            if air_quality:
+                st.session_state.air_quality_data = air_quality
+            
+            st.session_state.last_update = datetime.now()
+            
+            status_text.text("✅ All data loaded successfully!")
+            progress_bar.progress(100)
+            time.sleep(0.5)
+            
+        finally:
+            progress_bar.empty()
+            status_text.empty()
+    
+    def run(self):
+        """Main application runner"""
+        self.initialize_session_state()
+        self.load_premium_styling()
+        
+        # Render sidebar navigation
+        self.render_premium_sidebar()
+        
+        # Render main content
+        self.render_content_area()
+        
+        # Floating action buttons
+        st.markdown("""
+            <div class="fab-container">
+                <button class="fab" title="Settings">⚙️</button>
+                <button class="fab" title="Refresh">🔄</button>
+                <button class="fab" title="Share">📤</button>
+            </div>
+        """, unsafe_allow_html=True)
 
 if __name__ == "__main__":
-    app = WeatherApp()
+    app = PremiumWeatherApp()
     app.run()

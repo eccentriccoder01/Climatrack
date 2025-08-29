@@ -1,73 +1,103 @@
 import streamlit as st
-from typing import Dict, Any, List
+from typing import Dict, Any, List, Optional
 import json
+import numpy as np
+from datetime import datetime
+import plotly.graph_objects as go
+import plotly.express as px
 
 class UIComponents:
-    """Premium UI components with world-class design and animations"""
+    """World-class UI component library with premium animations and interactions"""
     
     def __init__(self):
         self.themes = {
+            "premium_dark": {
+                "name": "Premium Dark",
+                "primary": "#00d4ff",
+                "secondary": "#7c3aed",
+                "accent": "#06ffa5",
+                "warm": "#ff6b35",
+                "cold": "#4facfe",
+                "background": "#0a0a0f",
+                "surface": "rgba(255, 255, 255, 0.05)",
+                "text_primary": "#ffffff",
+                "text_secondary": "rgba(255, 255, 255, 0.7)"
+            },
+            "premium_light": {
+                "name": "Premium Light",
+                "primary": "#0284c7",
+                "secondary": "#7c3aed",
+                "accent": "#059669",
+                "warm": "#dc2626",
+                "cold": "#2563eb",
+                "background": "#ffffff",
+                "surface": "rgba(0, 0, 0, 0.05)",
+                "text_primary": "#1f2937",
+                "text_secondary": "rgba(31, 41, 55, 0.7)"
+            },
             "aurora": {
                 "name": "Aurora Borealis",
                 "primary": "#00d4ff",
                 "secondary": "#7c3aed",
                 "accent": "#06ffa5",
                 "warm": "#ff6b35",
-                "cold": "#4facfe"
-            },
-            "sunset": {
-                "name": "Golden Sunset",
-                "primary": "#ff6b6b",
-                "secondary": "#feca57",
-                "accent": "#ff9ff3",
-                "warm": "#ff7675",
-                "cold": "#74b9ff"
-            },
-            "ocean": {
-                "name": "Deep Ocean",
-                "primary": "#0984e3",
-                "secondary": "#00b894",
-                "accent": "#00cec9",
-                "warm": "#e17055",
-                "cold": "#6c5ce7"
-            },
-            "forest": {
-                "name": "Emerald Forest",
-                "primary": "#00b894",
-                "secondary": "#00a085",
-                "accent": "#55efc4",
-                "warm": "#fdcb6e",
-                "cold": "#74b9ff"
+                "cold": "#4facfe",
+                "background": "#0a0a0f",
+                "surface": "rgba(255, 255, 255, 0.05)",
+                "text_primary": "#ffffff",
+                "text_secondary": "rgba(255, 255, 255, 0.7)"
             }
         }
-        self.current_theme = "aurora"
-    
+        
+        self.animation_presets = {
+            "fade_in": "fadeIn 0.5s ease-out",
+            "slide_up": "slideUp 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
+            "scale_in": "scaleIn 0.2s cubic-bezier(0.34, 1.56, 0.64, 1)",
+            "bounce": "bounce 2s infinite",
+            "pulse": "pulse 2s infinite",
+            "float": "float 6s ease-in-out infinite",
+            "glow": "glow 3s ease-in-out infinite",
+            "shimmer": "shimmer 2s linear infinite"
+        }
+        
     def load_premium_css(self):
-        """Load premium CSS with advanced animations and glassmorphism"""
+        """Load world-class premium CSS with advanced features"""
         st.markdown("""
         <style>
         /* Import Premium Fonts */
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@100;200;300;400;500;600;700;800;900&family=JetBrains+Mono:wght@100;200;300;400;500;600;700;800&family=Playfair+Display:wght@400;500;600;700;800;900&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@100;200;300;400;500;600;700;800;900&family=JetBrains+Mono:wght@100;200;300;400;500;600;700;800&family=Playfair+Display:wght@400;500;600;700;800;900&family=Space+Grotesk:wght@300;400;500;600;700&display=swap');
         
-        /* CSS Custom Properties - Dynamic Theme System */
+        /* Advanced CSS Custom Properties */
         :root {
+            /* Color System */
             --primary: #00d4ff;
+            --primary-rgb: 0, 212, 255;
             --secondary: #7c3aed;
+            --secondary-rgb: 124, 58, 237;
             --accent: #06ffa5;
+            --accent-rgb: 6, 255, 165;
             --warm: #ff6b35;
+            --warm-rgb: 255, 107, 53;
             --cold: #4facfe;
+            --cold-rgb: 79, 172, 254;
+            
+            /* Status Colors */
             --success: #10b981;
             --warning: #f59e0b;
             --error: #ef4444;
             --info: #3b82f6;
             
-            /* Glass Morphism */
-            --glass-bg: rgba(255, 255, 255, 0.05);
-            --glass-border: rgba(255, 255, 255, 0.1);
+            /* Glass Morphism Advanced */
+            --glass-bg: rgba(255, 255, 255, 0.03);
+            --glass-bg-hover: rgba(255, 255, 255, 0.05);
+            --glass-border: rgba(255, 255, 255, 0.08);
+            --glass-border-hover: rgba(255, 255, 255, 0.15);
             --glass-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+            --glass-shadow-hover: 0 16px 48px rgba(0, 0, 0, 0.4);
             --glass-backdrop: blur(20px);
+            --glass-backdrop-strong: blur(40px);
             
-            /* Spacing System */
+            /* Spacing System (8px base) */
             --space-xs: 0.25rem;
             --space-sm: 0.5rem;
             --space-md: 1rem;
@@ -75,42 +105,82 @@ class UIComponents:
             --space-xl: 2rem;
             --space-2xl: 3rem;
             --space-3xl: 4rem;
+            --space-4xl: 6rem;
+            --space-5xl: 8rem;
             
-            /* Border Radius */
+            /* Border Radius System */
+            --radius-xs: 4px;
             --radius-sm: 8px;
             --radius-md: 12px;
             --radius-lg: 16px;
             --radius-xl: 20px;
             --radius-2xl: 24px;
+            --radius-3xl: 32px;
             --radius-full: 9999px;
             
-            /* Shadows */
-            --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.05);
+            /* Shadow System */
+            --shadow-xs: 0 1px 2px rgba(0, 0, 0, 0.05);
+            --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.1);
             --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
             --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
             --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
-            --shadow-glow: 0 0 20px var(--primary);
+            --shadow-2xl: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+            --shadow-inner: inset 0 2px 4px rgba(0, 0, 0, 0.06);
+            --shadow-glow: 0 0 20px rgba(var(--primary-rgb), 0.3);
+            --shadow-glow-strong: 0 0 40px rgba(var(--primary-rgb), 0.5);
             
-            /* Animations */
+            /* Animation Timing */
             --transition-fast: 150ms cubic-bezier(0.4, 0, 0.2, 1);
             --transition-normal: 300ms cubic-bezier(0.4, 0, 0.2, 1);
             --transition-slow: 500ms cubic-bezier(0.4, 0, 0.2, 1);
+            --transition-bounce: 400ms cubic-bezier(0.34, 1.56, 0.64, 1);
+            
+            /* Typography Scale */
+            --text-xs: 0.75rem;
+            --text-sm: 0.875rem;
+            --text-base: 1rem;
+            --text-lg: 1.125rem;
+            --text-xl: 1.25rem;
+            --text-2xl: 1.5rem;
+            --text-3xl: 1.875rem;
+            --text-4xl: 2.25rem;
+            --text-5xl: 3rem;
+            --text-6xl: 3.75rem;
+            --text-7xl: 4.5rem;
+            --text-8xl: 6rem;
+            --text-9xl: 8rem;
+            
+            /* Z-Index Scale */
+            --z-dropdown: 1000;
+            --z-sticky: 1020;
+            --z-fixed: 1030;
+            --z-modal-backdrop: 1040;
+            --z-modal: 1050;
+            --z-popover: 1060;
+            --z-tooltip: 1070;
+            --z-toast: 1080;
         }
         
-        /* Global Styles with Advanced Background */
+        /* Advanced Global Styles */
         .main {
             background: 
-                radial-gradient(circle at 20% 80%, rgba(120, 119, 198, 0.3) 0%, transparent 50%),
-                radial-gradient(circle at 80% 20%, rgba(255, 119, 198, 0.3) 0%, transparent 50%),
-                radial-gradient(circle at 40% 40%, rgba(120, 200, 255, 0.2) 0%, transparent 50%),
-                linear-gradient(135deg, #0a0a0f 0%, #1a0b2e 25%, #16213e 50%, #0f3460 75%, #0a1a2e 100%);
+                radial-gradient(circle at 20% 80%, rgba(var(--secondary-rgb), 0.3) 0%, transparent 50%),
+                radial-gradient(circle at 80% 20%, rgba(var(--warm-rgb), 0.2) 0%, transparent 50%),
+                radial-gradient(circle at 40% 40%, rgba(var(--cold-rgb), 0.2) 0%, transparent 50%),
+                linear-gradient(135deg, 
+                    #0a0a0f 0%, 
+                    #1a0b2e 25%, 
+                    #16213e 50%, 
+                    #0f3460 75%, 
+                    #0a1a2e 100%
+                );
             min-height: 100vh;
             font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
             position: relative;
             overflow-x: hidden;
         }
         
-        /* Animated Background Particles */
+        /* Dynamic Background with Particles */
         .main::before {
             content: '';
             position: fixed;
@@ -118,7 +188,7 @@ class UIComponents:
             left: 0;
             width: 100%;
             height: 100%;
-            background: 
+            background-image: 
                 radial-gradient(2px 2px at 20px 30px, rgba(255, 255, 255, 0.15), transparent),
                 radial-gradient(2px 2px at 40px 70px, rgba(255, 255, 255, 0.1), transparent),
                 radial-gradient(1px 1px at 90px 40px, rgba(255, 255, 255, 0.1), transparent),
@@ -129,278 +199,72 @@ class UIComponents:
             animation: sparkle 20s linear infinite;
             pointer-events: none;
             z-index: -1;
-        }
-        
-        @keyframes sparkle {
-            0% { transform: translateY(0px); }
-            100% { transform: translateY(-100px); }
+            opacity: 0.6;
         }
         
         /* Hide Streamlit Elements */
-        .stDeployButton, #MainMenu, footer, header { display: none !important; }
-        .stAppViewBlockContainer { padding-top: var(--space-lg); }
+        .stDeployButton, #MainMenu, footer, header, .stDecoration {
+            display: none !important;
+        }
+        
+        .stAppViewBlockContainer {
+            padding-top: var(--space-lg);
+            max-width: none !important;
+        }
         
         /* Custom Scrollbar */
         ::-webkit-scrollbar {
             width: 8px;
             height: 8px;
         }
+        
         ::-webkit-scrollbar-track {
             background: rgba(0, 0, 0, 0.2);
             border-radius: var(--radius-full);
         }
+        
         ::-webkit-scrollbar-thumb {
             background: linear-gradient(180deg, var(--primary), var(--secondary));
             border-radius: var(--radius-full);
             transition: var(--transition-normal);
         }
+        
         ::-webkit-scrollbar-thumb:hover {
             background: linear-gradient(180deg, var(--accent), var(--primary));
+            box-shadow: var(--shadow-glow);
         }
         
-        /* Premium Header with Advanced Animations */
-        .premium-header {
-            text-align: center;
-            margin: var(--space-xl) 0 var(--space-3xl) 0;
-            padding: var(--space-3xl) var(--space-xl);
-            background: var(--glass-bg);
-            border-radius: var(--radius-2xl);
-            border: 1px solid var(--glass-border);
-            backdrop-filter: var(--glass-backdrop);
-            box-shadow: var(--glass-shadow);
-            position: relative;
-            overflow: hidden;
+        /* Advanced Animations */
+        @keyframes sparkle {
+            0% { transform: translateY(0px); }
+            100% { transform: translateY(-100px); }
         }
         
-        .premium-header::before {
-            content: '';
-            position: absolute;
-            top: -50%;
-            left: -50%;
-            width: 200%;
-            height: 200%;
-            background: linear-gradient(45deg, transparent, rgba(255, 255, 255, 0.03), transparent);
-            transform: rotate(45deg);
-            animation: shimmer 3s infinite;
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
         }
         
-        @keyframes shimmer {
-            0% { transform: translateX(-100%) translateY(-100%) rotate(45deg); }
-            100% { transform: translateX(100%) translateY(100%) rotate(45deg); }
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
         }
         
-        .premium-header h1 {
-            font-family: 'Playfair Display', serif;
-            font-size: clamp(2.5rem, 5vw, 4rem);
-            font-weight: 800;
-            background: linear-gradient(135deg, var(--primary), var(--accent), var(--secondary));
-            background-size: 200% 200%;
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-            margin-bottom: var(--space-md);
-            animation: gradient-shift 4s ease-in-out infinite;
-            position: relative;
-            z-index: 1;
+        @keyframes scaleIn {
+            from { opacity: 0; transform: scale(0.8); }
+            to { opacity: 1; transform: scale(1); }
         }
         
-        @keyframes gradient-shift {
-            0%, 100% { background-position: 0% 50%; }
-            50% { background-position: 100% 50%; }
-        }
-        
-        .premium-header p {
-            font-size: 1.125rem;
-            color: rgba(255, 255, 255, 0.7);
-            font-weight: 300;
-            letter-spacing: 0.5px;
-            margin: 0;
-            position: relative;
-            z-index: 1;
-        }
-        
-        /* Weather Status Indicator */
-        .weather-status {
-            display: inline-flex;
-            align-items: center;
-            gap: var(--space-sm);
-            padding: var(--space-sm) var(--space-md);
-            background: var(--glass-bg);
-            border-radius: var(--radius-full);
-            border: 1px solid var(--glass-border);
-            font-size: 0.875rem;
-            color: rgba(255, 255, 255, 0.8);
-            margin-top: var(--space-md);
-        }
-        
-        .status-indicator {
-            width: 8px;
-            height: 8px;
-            border-radius: 50%;
-            background: var(--success);
-            animation: pulse 2s infinite;
+        @keyframes bounce {
+            0%, 20%, 53%, 80%, 100% { transform: translate3d(0,0,0); }
+            40%, 43% { transform: translate3d(0, -30px, 0); }
+            70% { transform: translate3d(0, -15px, 0); }
+            90% { transform: translate3d(0, -4px, 0); }
         }
         
         @keyframes pulse {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0.5; }
-        }
-        
-        /* Premium Search Container */
-        .premium-search {
-            margin: var(--space-xl) 0;
-            padding: var(--space-xl);
-            background: var(--glass-bg);
-            border-radius: var(--radius-xl);
-            border: 1px solid var(--glass-border);
-            backdrop-filter: var(--glass-backdrop);
-            position: relative;
-            transition: var(--transition-normal);
-        }
-        
-        .premium-search:hover {
-            border-color: rgba(255, 255, 255, 0.2);
-            box-shadow: var(--glass-shadow), 0 0 0 1px rgba(255, 255, 255, 0.1);
-        }
-        
-        /* Enhanced Input Styling */
-        .stTextInput > div > div > input {
-            background: rgba(255, 255, 255, 0.05) !important;
-            border: 2px solid rgba(255, 255, 255, 0.1) !important;
-            border-radius: var(--radius-lg) !important;
-            color: white !important;
-            font-size: 1rem !important;
-            padding: var(--space-md) var(--space-lg) !important;
-            font-family: 'Inter', sans-serif !important;
-            font-weight: 400 !important;
-            transition: var(--transition-normal) !important;
-            backdrop-filter: blur(10px) !important;
-        }
-        
-        .stTextInput > div > div > input:focus {
-            border-color: var(--primary) !important;
-            box-shadow: 0 0 0 3px rgba(0, 212, 255, 0.1), var(--shadow-glow) !important;
-            background: rgba(255, 255, 255, 0.08) !important;
-            transform: translateY(-1px) !important;
-        }
-        
-        .stTextInput > div > div > input::placeholder {
-            color: rgba(255, 255, 255, 0.5) !important;
-            font-weight: 300 !important;
-        }
-        
-        /* Premium Button System */
-        .stButton > button {
-            background: linear-gradient(135deg, var(--primary), var(--secondary)) !important;
-            border: none !important;
-            border-radius: var(--radius-lg) !important;
-            color: white !important;
-            font-weight: 600 !important;
-            font-size: 0.95rem !important;
-            padding: var(--space-md) var(--space-xl) !important;
-            transition: var(--transition-normal) !important;
-            box-shadow: var(--shadow-lg) !important;
-            font-family: 'Inter', sans-serif !important;
-            position: relative !important;
-            overflow: hidden !important;
-        }
-        
-        .stButton > button::before {
-            content: '' !important;
-            position: absolute !important;
-            top: 0 !important;
-            left: -100% !important;
-            width: 100% !important;
-            height: 100% !important;
-            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent) !important;
-            transition: var(--transition-normal) !important;
-        }
-        
-        .stButton > button:hover {
-            transform: translateY(-2px) !important;
-            box-shadow: var(--shadow-xl), var(--shadow-glow) !important;
-            background: linear-gradient(135deg, var(--accent), var(--primary)) !important;
-        }
-        
-        .stButton > button:hover::before {
-            left: 100% !important;
-        }
-        
-        .stButton > button:active {
-            transform: translateY(0px) !important;
-        }
-        
-        /* Premium Weather Cards */
-        .premium-weather-card {
-            background: var(--glass-bg);
-            border-radius: var(--radius-xl);
-            padding: var(--space-xl);
-            margin: var(--space-lg) 0;
-            border: 1px solid var(--glass-border);
-            backdrop-filter: var(--glass-backdrop);
-            box-shadow: var(--glass-shadow);
-            transition: var(--transition-normal);
-            position: relative;
-            overflow: hidden;
-        }
-        
-        .premium-weather-card::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            height: 2px;
-            background: linear-gradient(90deg, var(--primary), var(--accent), var(--secondary));
-            background-size: 200% 100%;
-            animation: gradient-shift 3s ease-in-out infinite;
-        }
-        
-        .premium-weather-card:hover {
-            transform: translateY(-4px);
-            box-shadow: var(--glass-shadow), var(--shadow-xl);
-            border-color: rgba(255, 255, 255, 0.15);
-        }
-        
-        /* Advanced Temperature Display */
-        .temperature-showcase {
-            text-align: center;
-            position: relative;
-        }
-        
-        .temp-main {
-            font-family: 'Inter', sans-serif;
-            font-size: clamp(3rem, 8vw, 5rem);
-            font-weight: 800;
-            background: linear-gradient(135deg, var(--warm), var(--cold));
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            display: block;
-            line-height: 0.9;
-            margin-bottom: var(--space-sm);
-            position: relative;
-        }
-        
-        .temp-desc {
-            font-size: 1.125rem;
-            color: rgba(255, 255, 255, 0.8);
-            text-transform: capitalize;
-            font-weight: 500;
-            letter-spacing: 0.5px;
-        }
-        
-        /* Weather Icon with Advanced Animation */
-        .weather-icon-container {
-            text-align: center;
-            position: relative;
-        }
-        
-        .weather-icon-container img {
-            width: 120px;
-            height: 120px;
-            filter: drop-shadow(0 0 20px rgba(255, 255, 255, 0.3));
-            transition: var(--transition-normal);
-            animation: float 6s ease-in-out infinite;
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.7; transform: scale(1.05); }
         }
         
         @keyframes float {
@@ -408,156 +272,339 @@ class UIComponents:
             50% { transform: translateY(-10px); }
         }
         
-        .weather-icon-container:hover img {
-            transform: scale(1.1) translateY(-5px);
-            filter: drop-shadow(0 0 30px rgba(255, 255, 255, 0.5));
+        @keyframes glow {
+            0%, 100% { 
+                box-shadow: 0 0 20px rgba(var(--primary-rgb), 0.3);
+                filter: brightness(1);
+            }
+            50% { 
+                box-shadow: 0 0 40px rgba(var(--primary-rgb), 0.6);
+                filter: brightness(1.1);
+            }
         }
         
-        /* Premium Details Grid */
-        .premium-details-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: var(--space-lg);
-            margin-top: var(--space-xl);
+        @keyframes shimmer {
+            0% { transform: translateX(-100%); }
+            100% { transform: translateX(100%); }
         }
         
-        .detail-card {
-            background: rgba(255, 255, 255, 0.03);
-            border-radius: var(--radius-lg);
-            padding: var(--space-lg);
-            text-align: center;
-            border: 1px solid rgba(255, 255, 255, 0.08);
+        @keyframes gradientShift {
+            0%, 100% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+        }
+        
+        @keyframes rotate {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+        
+        @keyframes morphBackground {
+            0%, 100% { border-radius: var(--radius-xl); }
+            50% { border-radius: var(--radius-3xl); }
+        }
+        
+        /* Premium Glass Cards */
+        .glass-card {
+            background: var(--glass-bg);
+            backdrop-filter: var(--glass-backdrop);
+            border: 1px solid var(--glass-border);
+            border-radius: var(--radius-xl);
+            box-shadow: var(--glass-shadow);
             transition: var(--transition-normal);
             position: relative;
             overflow: hidden;
         }
         
-        .detail-card::before {
+        .glass-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+            transition: var(--transition-slow);
+        }
+        
+        .glass-card:hover {
+            background: var(--glass-bg-hover);
+            border-color: var(--glass-border-hover);
+            box-shadow: var(--glass-shadow-hover);
+            transform: translateY(-4px);
+        }
+        
+        .glass-card:hover::before {
+            left: 100%;
+        }
+        
+        /* Interactive Elements */
+        .interactive-card {
+            transition: var(--transition-normal);
+            cursor: pointer;
+            position: relative;
+            transform-style: preserve-3d;
+        }
+        
+        .interactive-card:hover {
+            transform: perspective(1000px) rotateX(2deg) translateY(-8px);
+        }
+        
+        .interactive-card:active {
+            transform: perspective(1000px) rotateX(0deg) translateY(-2px);
+        }
+        
+        /* Premium Buttons */
+        .premium-button {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            border: none;
+            border-radius: var(--radius-lg);
+            color: white;
+            font-weight: 600;
+            padding: var(--space-md) var(--space-xl);
+            font-size: var(--text-base);
+            cursor: pointer;
+            transition: var(--transition-normal);
+            position: relative;
+            overflow: hidden;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: var(--space-sm);
+            box-shadow: var(--shadow-lg);
+        }
+        
+        .premium-button::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            transition: var(--transition-normal);
+        }
+        
+        .premium-button:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-xl), var(--shadow-glow);
+            background: linear-gradient(135deg, var(--accent), var(--primary));
+        }
+        
+        .premium-button:hover::before {
+            left: 100%;
+        }
+        
+        .premium-button:active {
+            transform: translateY(0px);
+        }
+        
+        /* Premium Input Fields */
+        .premium-input {
+            width: 100%;
+            padding: var(--space-md) var(--space-lg);
+            background: var(--glass-bg);
+            border: 2px solid var(--glass-border);
+            border-radius: var(--radius-lg);
+            color: white;
+            font-size: var(--text-base);
+            font-family: 'Inter', sans-serif;
+            transition: var(--transition-normal);
+            backdrop-filter: var(--glass-backdrop);
+        }
+        
+        .premium-input:focus {
+            background: var(--glass-bg-hover);
+            border-color: var(--primary);
+            box-shadow: 0 0 0 4px rgba(var(--primary-rgb), 0.1);
+            outline: none;
+            transform: translateY(-1px);
+        }
+        
+        .premium-input::placeholder {
+            color: rgba(255, 255, 255, 0.5);
+            font-weight: 300;
+        }
+        
+        /* Weather Display Components */
+        .weather-hero {
+            background: linear-gradient(135deg, 
+                rgba(var(--primary-rgb), 0.1), 
+                rgba(var(--secondary-rgb), 0.1)
+            );
+            border-radius: var(--radius-2xl);
+            padding: var(--space-3xl);
+            border: 1px solid var(--glass-border);
+            backdrop-filter: var(--glass-backdrop);
+            position: relative;
+            overflow: hidden;
+            animation: fadeIn 0.8s ease-out;
+        }
+        
+        .weather-hero::before {
             content: '';
             position: absolute;
             top: 0;
             left: 0;
-            width: 100%;
-            height: 100%;
-            background: radial-gradient(circle at center, var(--primary)20, transparent 70%);
-            opacity: 0;
+            right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, var(--primary), var(--accent), var(--secondary));
+            background-size: 200% 100%;
+            animation: gradientShift 4s ease-in-out infinite;
+        }
+        
+        .weather-icon-animated {
+            position: relative;
+            display: inline-block;
+            animation: float 6s ease-in-out infinite;
+        }
+        
+        .weather-icon-animated img {
+            width: 120px;
+            height: 120px;
+            filter: drop-shadow(0 0 20px rgba(255, 255, 255, 0.3));
             transition: var(--transition-normal);
         }
         
-        .detail-card:hover {
-            background: rgba(255, 255, 255, 0.05);
-            border-color: var(--primary);
-            transform: translateY(-3px);
-            box-shadow: var(--shadow-lg);
+        .weather-icon-animated:hover img {
+            transform: scale(1.1);
+            filter: drop-shadow(0 0 30px rgba(255, 255, 255, 0.5));
         }
         
-        .detail-card:hover::before {
-            opacity: 0.1;
-        }
-        
-        .detail-icon {
-            font-size: 2.5rem;
-            margin-bottom: var(--space-md);
-            filter: drop-shadow(0 0 10px rgba(255, 255, 255, 0.3));
-            position: relative;
-            z-index: 1;
-        }
-        
-        .detail-label {
-            font-size: 0.875rem;
-            color: rgba(255, 255, 255, 0.6);
-            margin-bottom: var(--space-sm);
-            font-weight: 500;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-            position: relative;
-            z-index: 1;
-        }
-        
-        .detail-value {
-            font-size: 1.5rem;
-            color: white;
-            font-weight: 700;
-            font-family: 'JetBrains Mono', monospace;
-            position: relative;
-            z-index: 1;
-        }
-        
-        /* Premium Forecast Section */
-        .premium-forecast {
-            margin: var(--space-3xl) 0;
-            position: relative;
-        }
-        
-        .section-title {
-            font-family: 'Playfair Display', serif;
-            font-size: 2.25rem;
-            font-weight: 700;
-            color: white;
-            margin-bottom: var(--space-xl);
+        /* Temperature Display */
+        .temperature-display {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: clamp(3rem, 8vw, 6rem);
+            font-weight: 800;
+            background: linear-gradient(135deg, #ffffff, #e2e8f0);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
             text-align: center;
+            line-height: 0.9;
+            margin: var(--space-md) 0;
             position: relative;
         }
         
-        .section-title::after {
+        .temperature-display::after {
             content: '';
             position: absolute;
-            bottom: -8px;
+            bottom: -10px;
             left: 50%;
             transform: translateX(-50%);
             width: 60px;
             height: 3px;
             background: linear-gradient(90deg, var(--primary), var(--accent));
             border-radius: var(--radius-full);
+            animation: shimmer 2s linear infinite;
         }
         
-        .forecast-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-            gap: var(--space-lg);
-            margin: var(--space-xl) 0;
-        }
-        
-        .forecast-card {
+        /* Metric Cards */
+        .metric-card-premium {
             background: var(--glass-bg);
+            backdrop-filter: var(--glass-backdrop);
+            border: 1px solid var(--glass-border);
             border-radius: var(--radius-lg);
             padding: var(--space-lg);
             text-align: center;
-            border: 1px solid var(--glass-border);
-            transition: var(--transition-normal);
-            backdrop-filter: var(--glass-backdrop);
             position: relative;
             overflow: hidden;
+            transition: var(--transition-normal);
+            animation: slideUp 0.5s ease-out;
         }
         
-        .forecast-card::before {
+        .metric-card-premium::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background: linear-gradient(90deg, var(--primary), var(--accent));
+            transform: scaleX(0);
+            transform-origin: left;
+            transition: var(--transition-normal);
+        }
+        
+        .metric-card-premium:hover::before {
+            transform: scaleX(1);
+        }
+        
+        .metric-card-premium:hover {
+            background: var(--glass-bg-hover);
+            border-color: var(--glass-border-hover);
+            transform: translateY(-4px);
+            box-shadow: var(--shadow-xl);
+        }
+        
+        .metric-icon {
+            font-size: var(--text-3xl);
+            margin-bottom: var(--space-md);
+            display: block;
+            filter: drop-shadow(0 0 8px rgba(255, 255, 255, 0.3));
+            animation: pulse 3s infinite;
+        }
+        
+        .metric-value {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: var(--text-2xl);
+            font-weight: 700;
+            color: white;
+            margin-bottom: var(--space-sm);
+            position: relative;
+        }
+        
+        .metric-label {
+            font-size: var(--text-sm);
+            color: rgba(255, 255, 255, 0.7);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            font-weight: 500;
+        }
+        
+        /* Forecast Cards */
+        .forecast-card-premium {
+            background: var(--glass-bg);
+            backdrop-filter: var(--glass-backdrop);
+            border: 1px solid var(--glass-border);
+            border-radius: var(--radius-lg);
+            padding: var(--space-lg);
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+            transition: var(--transition-normal);
+            cursor: pointer;
+        }
+        
+        .forecast-card-premium::before {
             content: '';
             position: absolute;
             top: -100%;
             left: 0;
             width: 100%;
             height: 100%;
-            background: linear-gradient(180deg, var(--primary)20, transparent);
+            background: linear-gradient(180deg, 
+                rgba(var(--primary-rgb), 0.2), 
+                transparent
+            );
             transition: var(--transition-slow);
         }
         
-        .forecast-card:hover {
-            transform: translateY(-8px);
-            box-shadow: var(--shadow-xl), 0 0 30px rgba(0, 212, 255, 0.2);
+        .forecast-card-premium:hover {
+            transform: translateY(-8px) scale(1.02);
+            box-shadow: var(--shadow-2xl), var(--shadow-glow);
             border-color: var(--primary);
         }
         
-        .forecast-card:hover::before {
+        .forecast-card-premium:hover::before {
             top: 0;
         }
         
         .forecast-day {
-            font-size: 1.125rem;
+            font-size: var(--text-lg);
             font-weight: 600;
             color: white;
             margin-bottom: var(--space-md);
-            position: relative;
-            z-index: 1;
         }
         
         .forecast-icon img {
@@ -566,158 +613,117 @@ class UIComponents:
             margin: var(--space-sm) 0;
             filter: drop-shadow(0 0 15px rgba(255, 255, 255, 0.2));
             transition: var(--transition-normal);
-            position: relative;
-            z-index: 1;
         }
         
-        .forecast-card:hover .forecast-icon img {
-            transform: scale(1.1);
-            filter: drop-shadow(0 0 20px rgba(255, 255, 255, 0.4));
+        .forecast-card-premium:hover .forecast-icon img {
+            transform: scale(1.15) rotate(5deg);
+            filter: drop-shadow(0 0 25px rgba(255, 255, 255, 0.4));
         }
         
         .forecast-temps {
             margin: var(--space-md) 0;
-            position: relative;
-            z-index: 1;
+            display: flex;
+            justify-content: center;
+            gap: var(--space-sm);
+            align-items: center;
         }
         
         .temp-high {
-            font-size: 1.375rem;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: var(--text-xl);
             font-weight: 700;
             color: var(--warm);
-            margin-right: var(--space-sm);
         }
         
         .temp-low {
-            font-size: 1.125rem;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: var(--text-lg);
             font-weight: 500;
             color: var(--cold);
         }
         
-        .forecast-desc {
-            font-size: 0.875rem;
-            color: rgba(255, 255, 255, 0.7);
-            margin: var(--space-sm) 0;
-            text-transform: capitalize;
+        /* Air Quality Display */
+        .aqi-indicator-premium {
             position: relative;
-            z-index: 1;
-        }
-        
-        .forecast-details {
-            font-size: 0.75rem;
-            color: rgba(255, 255, 255, 0.6);
-            font-family: 'JetBrains Mono', monospace;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            position: relative;
-            z-index: 1;
-        }
-        
-        /* Premium Chart Section */
-        .premium-chart {
-            margin: var(--space-3xl) 0;
-            background: var(--glass-bg);
-            border-radius: var(--radius-xl);
-            padding: var(--space-xl);
-            border: 1px solid var(--glass-border);
-            backdrop-filter: var(--glass-backdrop);
-        }
-        
-        /* Premium Air Quality Section */
-        .premium-air-quality {
-            margin: var(--space-3xl) 0;
-            background: var(--glass-bg);
-            border-radius: var(--radius-xl);
-            padding: var(--space-xl);
-            border: 1px solid var(--glass-border);
-            backdrop-filter: var(--glass-backdrop);
-            position: relative;
-            overflow: hidden;
-        }
-        
-        .aqi-indicator {
             border-radius: var(--radius-lg);
             padding: var(--space-xl);
             text-align: center;
             color: white;
             font-weight: bold;
-            position: relative;
             overflow: hidden;
+            background: linear-gradient(135deg, 
+                rgba(var(--primary-rgb), 0.2), 
+                rgba(var(--secondary-rgb), 0.2)
+            );
+            backdrop-filter: var(--glass-backdrop);
+            border: 1px solid var(--glass-border);
         }
         
-        .aqi-indicator::before {
+        .aqi-indicator-premium::before {
             content: '';
             position: absolute;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
-            background: linear-gradient(45deg, transparent, rgba(255, 255, 255, 0.1), transparent);
-            animation: shimmer 2s infinite;
+            background: linear-gradient(45deg, 
+                transparent, 
+                rgba(255, 255, 255, 0.1), 
+                transparent
+            );
+            animation: shimmer 3s linear infinite;
         }
         
         .aqi-value {
-            font-size: 3.5rem;
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: var(--text-5xl);
             font-weight: 800;
             margin-bottom: var(--space-sm);
             position: relative;
             z-index: 1;
+            animation: scaleIn 0.8s ease-out;
         }
         
         .aqi-level {
-            font-size: 1.25rem;
+            font-size: var(--text-xl);
             font-weight: 500;
             position: relative;
             z-index: 1;
+            text-transform: uppercase;
+            letter-spacing: 2px;
         }
         
-        .aqi-details {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
-            gap: var(--space-md);
-            align-items: center;
-            margin-top: var(--space-lg);
-        }
-        
-        .aqi-component {
-            background: rgba(255, 255, 255, 0.05);
-            border-radius: var(--radius-md);
-            padding: var(--space-md);
-            text-align: center;
-            color: white;
-            font-family: 'JetBrains Mono', monospace;
-            font-size: 0.875rem;
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            transition: var(--transition-normal);
-        }
-        
-        .aqi-component:hover {
-            background: rgba(255, 255, 255, 0.08);
-            border-color: var(--primary);
-            transform: translateY(-2px);
-        }
-        
-        /* Premium Footer */
-        .premium-footer {
-            text-align: center;
-            margin: var(--space-3xl) 0 var(--space-xl) 0;
-            padding: var(--space-xl);
+        /* Chart Containers */
+        .chart-container-premium {
             background: var(--glass-bg);
-            border-radius: var(--radius-xl);
-            border: 1px solid var(--glass-border);
             backdrop-filter: var(--glass-backdrop);
-            color: rgba(255, 255, 255, 0.7);
+            border: 1px solid var(--glass-border);
+            border-radius: var(--radius-xl);
+            padding: var(--space-xl);
+            margin: var(--space-lg) 0;
+            position: relative;
+            overflow: hidden;
         }
         
-        .premium-footer p {
-            margin: var(--space-sm) 0;
-            font-size: 0.875rem;
+        .chart-container-premium::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background: linear-gradient(90deg, var(--primary), var(--accent), var(--secondary));
+            background-size: 200% 100%;
+            animation: gradientShift 3s ease-in-out infinite;
         }
         
         /* Loading States */
-        .skeleton {
-            background: linear-gradient(90deg, rgba(255, 255, 255, 0.1) 0%, rgba(255, 255, 255, 0.2) 50%, rgba(255, 255, 255, 0.1) 100%);
+        .loading-skeleton {
+            background: linear-gradient(90deg, 
+                rgba(255, 255, 255, 0.1) 0%, 
+                rgba(255, 255, 255, 0.2) 50%, 
+                rgba(255, 255, 255, 0.1) 100%
+            );
             background-size: 200% 100%;
             animation: skeleton-loading 1.5s infinite;
             border-radius: var(--radius-md);
@@ -728,225 +734,409 @@ class UIComponents:
             100% { background-position: -200% 0; }
         }
         
-        /* Enhanced Selectbox */
-        .stSelectbox > div > div > select {
-            background: var(--glass-bg) !important;
-            border: 2px solid var(--glass-border) !important;
-            border-radius: var(--radius-md) !important;
-            color: white !important;
-            font-family: 'Inter', sans-serif !important;
-            padding: var(--space-md) !important;
-            transition: var(--transition-normal) !important;
+        .loading-spinner {
+            width: 40px;
+            height: 40px;
+            border: 3px solid rgba(255, 255, 255, 0.1);
+            border-top-color: var(--primary);
+            border-radius: 50%;
+            animation: rotate 1s linear infinite;
+            margin: var(--space-lg) auto;
         }
         
-        .stSelectbox > div > div > select:focus {
-            border-color: var(--primary) !important;
-            box-shadow: 0 0 0 3px rgba(0, 212, 255, 0.1) !important;
+        /* Status Indicators */
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            display: inline-block;
+            margin-right: var(--space-sm);
         }
         
-        /* Enhanced Expander */
-        .streamlit-expanderHeader {
-            background: var(--glass-bg) !important;
-            border-radius: var(--radius-md) !important;
-            border: 1px solid var(--glass-border) !important;
-            color: white !important;
-            transition: var(--transition-normal) !important;
-        }
+        .status-online { background: var(--success); animation: pulse 2s infinite; }
+        .status-loading { background: var(--warning); animation: pulse 1s infinite; }
+        .status-error { background: var(--error); animation: pulse 0.5s infinite; }
         
-        .streamlit-expanderHeader:hover {
-            border-color: var(--primary) !important;
-            background: rgba(255, 255, 255, 0.08) !important;
-        }
-        
-        .streamlit-expanderContent {
-            background: var(--glass-bg) !important;
-            border: 1px solid var(--glass-border) !important;
-            border-radius: 0 0 var(--radius-md) var(--radius-md) !important;
-        }
-        
-        /* Alert Messages */
-        .stSuccess {
-            background: rgba(16, 185, 129, 0.1) !important;
-            border: 1px solid rgba(16, 185, 129, 0.3) !important;
-            border-radius: var(--radius-md) !important;
-            color: var(--success) !important;
-        }
-        
-        .stError {
-            background: rgba(239, 68, 68, 0.1) !important;
-            border: 1px solid rgba(239, 68, 68, 0.3) !important;
-            border-radius: var(--radius-md) !important;
-            color: var(--error) !important;
-        }
-        
-        .stWarning {
-            background: rgba(245, 158, 11, 0.1) !important;
-            border: 1px solid rgba(245, 158, 11, 0.3) !important;
-            border-radius: var(--radius-md) !important;
-            color: var(--warning) !important;
-        }
-        
-        .stInfo {
-            background: rgba(59, 130, 246, 0.1) !important;
-            border: 1px solid rgba(59, 130, 246, 0.3) !important;
-            border-radius: var(--radius-md) !important;
-            color: var(--info) !important;
-        }
-        
-        /* Responsive Design */
-        @media (max-width: 768px) {
-            .premium-header h1 {
-                font-size: 2.5rem;
-            }
-            
-            .temp-main {
-                font-size: 3.5rem;
-            }
-            
-            .premium-details-grid {
-                grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-                gap: var(--space-md);
-            }
-            
-            .forecast-grid {
-                grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-                gap: var(--space-md);
-            }
-            
-            .premium-header,
-            .premium-search,
-            .premium-weather-card,
-            .premium-chart,
-            .premium-air-quality {
-                padding: var(--space-lg);
-                margin: var(--space-lg) 0;
-            }
-        }
-        
-        /* Utility Classes */
-        .glass-card {
+        /* Notification Toasts */
+        .toast-notification {
+            position: fixed;
+            top: var(--space-lg);
+            right: var(--space-lg);
             background: var(--glass-bg);
-            border-radius: var(--radius-lg);
+            backdrop-filter: var(--glass-backdrop-strong);
             border: 1px solid var(--glass-border);
-            backdrop-filter: var(--glass-backdrop);
-            box-shadow: var(--glass-shadow);
+            border-radius: var(--radius-lg);
+            padding: var(--space-lg);
+            color: white;
+            z-index: var(--z-toast);
+            max-width: 400px;
+            box-shadow: var(--shadow-2xl);
+            animation: slideUp 0.3s ease-out;
         }
         
-        .gradient-text {
-            background: linear-gradient(135deg, var(--primary), var(--accent));
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            font-weight: 600;
+        .toast-success { border-left: 4px solid var(--success); }
+        .toast-warning { border-left: 4px solid var(--warning); }
+        .toast-error { border-left: 4px solid var(--error); }
+        .toast-info { border-left: 4px solid var(--info); }
+        
+        /* Modal Overlays */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            backdrop-filter: blur(5px);
+            z-index: var(--z-modal-backdrop);
+            animation: fadeIn 0.3s ease-out;
         }
         
-        .hover-lift {
-            transition: var(--transition-normal);
+        .modal-content {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: var(--glass-bg);
+            backdrop-filter: var(--glass-backdrop-strong);
+            border: 1px solid var(--glass-border);
+            border-radius: var(--radius-xl);
+            padding: var(--space-2xl);
+            z-index: var(--z-modal);
+            max-width: 90vw;
+            max-height: 90vh;
+            overflow-y: auto;
+            animation: scaleIn 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
         }
         
-        .hover-lift:hover {
-            transform: translateY(-4px);
-            box-shadow: var(--shadow-xl);
-        }
-        
-        /* Weather Condition Animations */
+        /* Weather Condition Specific Animations */
         .weather-sunny {
-            animation: sunny-glow 3s ease-in-out infinite;
-        }
-        
-        @keyframes sunny-glow {
-            0%, 100% { filter: drop-shadow(0 0 20px rgba(255, 193, 7, 0.3)); }
-            50% { filter: drop-shadow(0 0 30px rgba(255, 193, 7, 0.5)); }
+            animation: glow 3s ease-in-out infinite;
+            filter: drop-shadow(0 0 20px rgba(255, 193, 7, 0.4));
         }
         
         .weather-rainy {
-            animation: rainy-drip 2s ease-in-out infinite;
-        }
-        
-        @keyframes rainy-drip {
-            0%, 100% { transform: translateY(0px); }
-            50% { transform: translateY(3px); }
-        }
-        
-        .weather-cloudy {
-            animation: cloudy-drift 4s ease-in-out infinite;
-        }
-        
-        @keyframes cloudy-drift {
-            0%, 100% { transform: translateX(0px); }
-            50% { transform: translateX(5px); }
+            animation: float 2s ease-in-out infinite;
+            filter: drop-shadow(0 0 15px rgba(59, 130, 246, 0.4));
         }
         
         .weather-snowy {
-            animation: snowy-fall 3s ease-in-out infinite;
+            animation: float 3s ease-in-out infinite reverse;
+            filter: drop-shadow(0 0 20px rgba(229, 231, 235, 0.4));
         }
         
-        @keyframes snowy-fall {
-            0%, 100% { transform: translateY(0px) rotate(0deg); }
-            50% { transform: translateY(5px) rotate(5deg); }
+        .weather-cloudy {
+            animation: float 4s ease-in-out infinite;
+            filter: drop-shadow(0 0 10px rgba(156, 163, 175, 0.4));
+        }
+        
+        .weather-stormy {
+            animation: pulse 1s ease-in-out infinite;
+            filter: drop-shadow(0 0 25px rgba(239, 68, 68, 0.4));
+        }
+        
+        /* Responsive Design */
+        @media (max-width: 1024px) {
+            :root {
+                --space-xs: 0.2rem;
+                --space-sm: 0.4rem;
+                --space-md: 0.8rem;
+                --space-lg: 1.2rem;
+                --space-xl: 1.6rem;
+                --space-2xl: 2.4rem;
+                --space-3xl: 3.2rem;
+            }
+            
+            .weather-hero {
+                padding: var(--space-2xl);
+            }
+            
+            .temperature-display {
+                font-size: clamp(2.5rem, 6vw, 4rem);
+            }
+        }
+        
+        @media (max-width: 768px) {
+            .metric-card-premium {
+                padding: var(--space-md);
+            }
+            
+            .forecast-card-premium {
+                padding: var(--space-md);
+            }
+            
+            .chart-container-premium {
+                padding: var(--space-lg);
+            }
+            
+            .modal-content {
+                margin: var(--space-lg);
+                padding: var(--space-xl);
+            }
+            
+            .toast-notification {
+                top: var(--space-md);
+                right: var(--space-md);
+                left: var(--space-md);
+                max-width: none;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .weather-hero {
+                padding: var(--space-xl);
+            }
+            
+            .temperature-display {
+                font-size: clamp(2rem, 8vw, 3rem);
+            }
+            
+            .metric-icon {
+                font-size: var(--text-2xl);
+            }
+            
+            .metric-value {
+                font-size: var(--text-xl);
+            }
+        }
+        
+        /* Accessibility Enhancements */
+        @media (prefers-reduced-motion: reduce) {
+            *, *::before, *::after {
+                animation-duration: 0.01ms !important;
+                animation-iteration-count: 1 !important;
+                transition-duration: 0.01ms !important;
+            }
+        }
+        
+        /* Dark Mode Support */
+        @media (prefers-color-scheme: light) {
+            :root {
+                --glass-bg: rgba(0, 0, 0, 0.03);
+                --glass-bg-hover: rgba(0, 0, 0, 0.05);
+                --glass-border: rgba(0, 0, 0, 0.08);
+                --glass-border-hover: rgba(0, 0, 0, 0.15);
+            }
+        }
+        
+        /* High Contrast Mode */
+        @media (prefers-contrast: high) {
+            :root {
+                --glass-border: rgba(255, 255, 255, 0.3);
+                --glass-border-hover: rgba(255, 255, 255, 0.5);
+            }
+        }
+        
+        /* Print Styles */
+        @media print {
+            .glass-card, .metric-card-premium, .forecast-card-premium {
+                background: white !important;
+                color: black !important;
+                border: 1px solid #ccc !important;
+                box-shadow: none !important;
+            }
+            
+            .temperature-display {
+                color: black !important;
+                -webkit-text-fill-color: black !important;
+            }
         }
         </style>
         """, unsafe_allow_html=True)
     
-    def create_premium_header(self, title: str = "Climatrack", subtitle: str = "Real-time Weather Intelligence"):
-        """Create premium animated header"""
-        return f"""
-        <div class="premium-header">
-            <h1>{title}</h1>
-            <p>{subtitle}</p>
-            <div class="weather-status">
-                <div class="status-indicator"></div>
-                <span>Live Weather Data</span>
-            </div>
-        </div>
-        """
-    
-    def create_weather_icon_enhanced(self, icon_code: str, condition: str = "clear", size: str = "120px") -> str:
-        """Create enhanced weather icon with animations"""
+    def create_animated_weather_icon(self, icon_code: str, condition: str = "clear", size: str = "120px") -> str:
+        """Create advanced animated weather icon with condition-specific effects"""
         condition_class = f"weather-{condition.lower()}"
+        
+        # Advanced icon mapping with special effects
+        special_effects = {
+            'sunny': 'weather-sunny',
+            'clear': 'weather-sunny',
+            'rain': 'weather-rainy',
+            'drizzle': 'weather-rainy',
+            'thunderstorm': 'weather-stormy',
+            'snow': 'weather-snowy',
+            'clouds': 'weather-cloudy',
+            'mist': 'weather-cloudy',
+            'fog': 'weather-cloudy'
+        }
+        
+        effect_class = special_effects.get(condition.lower(), 'weather-clear')
+        
         return f"""
-        <div class="weather-icon-container">
+        <div class="weather-icon-animated {effect_class}">
             <img src="http://openweathermap.org/img/wn/{icon_code}@4x.png" 
-                 class="{condition_class}"
                  style="width: {size}; height: {size};" 
                  alt="{condition}" />
         </div>
         """
     
-    def create_metric_card_premium(self, icon: str, label: str, value: str, unit: str = "", 
-                                 color: str = "var(--primary)", description: str = "") -> str:
-        """Create premium metric card with enhanced styling"""
+    def create_premium_metric_card(self, icon: str, label: str, value: str, unit: str = "", 
+                                 color: str = "var(--primary)", description: str = "", 
+                                 trend: str = None) -> str:
+        """Create premium metric card with trend indicators and descriptions"""
+        
+        trend_indicator = ""
+        if trend:
+            trend_icons = {
+                'up': '📈',
+                'down': '📉',
+                'stable': '➡️'
+            }
+            trend_colors = {
+                'up': 'var(--success)',
+                'down': 'var(--error)',
+                'stable': 'var(--info)'
+            }
+            trend_indicator = f"""
+                <div style="
+                    position: absolute;
+                    top: 12px;
+                    right: 12px;
+                    font-size: 14px;
+                    color: {trend_colors.get(trend, 'var(--info)')};
+                ">{trend_icons.get(trend, '➡️')}</div>
+            """
+        
         return f"""
-        <div class="detail-card hover-lift">
-            <div class="detail-icon">{icon}</div>
-            <div class="detail-label">{label}</div>
-            <div class="detail-value">{value}<small style="font-size: 0.8em; opacity: 0.8;">{unit}</small></div>
-            {f'<div style="font-size: 0.75rem; color: rgba(255, 255, 255, 0.5); margin-top: 0.5rem;">{description}</div>' if description else ''}
+        <div class="metric-card-premium interactive-card">
+            {trend_indicator}
+            <div class="metric-icon" style="color: {color};">{icon}</div>
+            <div class="metric-value">
+                {value}
+                <small style="font-size: 0.7em; opacity: 0.8; margin-left: 2px;">{unit}</small>
+            </div>
+            <div class="metric-label">{label}</div>
+            {f'<div style="font-size: 0.75rem; color: rgba(255, 255, 255, 0.5); margin-top: 8px; line-height: 1.3;">{description}</div>' if description else ''}
         </div>
         """
     
-    def create_loading_skeleton(self, height: str = "100px", width: str = "100%") -> str:
-        """Create loading skeleton animation"""
+    def create_premium_forecast_card(self, day_data: Dict, is_today: bool = False) -> str:
+        """Create premium forecast card with enhanced styling and interactions"""
+        today_class = "today-highlight" if is_today else ""
+        day_label = "Today" if is_today else day_data.get('day', 'Unknown')
+        
+        temp_unit = "°C"  # Default, should be passed as parameter
+        
+        # Comfort score color
+        comfort_score = day_data.get('comfort_score', 50)
+        comfort_color = self._get_comfort_color(comfort_score)
+        
         return f"""
-        <div class="skeleton" style="height: {height}; width: {width};"></div>
+        <div class="forecast-card-premium {today_class}">
+            <div class="forecast-day">{day_label}</div>
+            <div style="font-size: 0.75rem; color: rgba(255, 255, 255, 0.6); margin-bottom: 1rem;">
+                {day_data.get('date', datetime.now()).strftime('%m/%d')}
+            </div>
+            
+            <div class="forecast-icon">
+                <img src="http://openweathermap.org/img/wn/{day_data.get('icon', '01d')}@2x.png" />
+            </div>
+            
+            <div class="forecast-temps">
+                <span class="temp-high">{day_data.get('temp_max', 0):.0f}{temp_unit}</span>
+                <span style="color: rgba(255, 255, 255, 0.5); margin: 0 4px;">/</span>
+                <span class="temp-low">{day_data.get('temp_min', 0):.0f}{temp_unit}</span>
+            </div>
+            
+            <div style="font-size: 0.85rem; color: rgba(255, 255, 255, 0.8); margin: 0.5rem 0; text-transform: capitalize;">
+                {day_data.get('description', 'No description')}
+            </div>
+            
+            <div style="display: flex; justify-content: space-between; margin-top: 1rem; font-size: 0.75rem;">
+                <span style="color: rgba(255, 255, 255, 0.6);">💧 {day_data.get('humidity', 0):.0f}%</span>
+                <span style="color: rgba(255, 255, 255, 0.6);">🌬️ {day_data.get('wind_speed', 0):.0f}</span>
+            </div>
+            
+            <div style="
+                margin-top: 0.75rem;
+                padding: 4px 8px;
+                background: rgba({comfort_color}, 0.2);
+                border-radius: 12px;
+                font-size: 0.7rem;
+                text-align: center;
+                color: rgb({comfort_color});
+                border: 1px solid rgba({comfort_color}, 0.3);
+            ">
+                Comfort: {comfort_score:.0f}%
+            </div>
+        </div>
+        """
+    
+    def _get_comfort_color(self, score: float) -> str:
+        """Get RGB color based on comfort score"""
+        if score >= 80:
+            return "16, 185, 129"  # Green
+        elif score >= 60:
+            return "245, 158, 11"  # Yellow
+        elif score >= 40:
+            return "249, 115, 22"  # Orange
+        else:
+            return "239, 68, 68"   # Red
+    
+    def create_aqi_indicator(self, aqi: int, level: str, color: str) -> str:
+        """Create premium AQI indicator with enhanced visuals"""
+        return f"""
+        <div class="aqi-indicator-premium" style="
+            background: linear-gradient(135deg, 
+                rgba({self._hex_to_rgb(color)}, 0.2), 
+                rgba({self._hex_to_rgb(color)}, 0.1)
+            );
+            border: 2px solid rgba({self._hex_to_rgb(color)}, 0.3);
+        ">
+            <div class="aqi-value" style="color: {color};">{aqi}</div>
+            <div class="aqi-level" style="color: {color};">{level}</div>
+            <div style="
+                font-size: 0.9rem;
+                margin-top: 0.5rem;
+                opacity: 0.9;
+                color: rgba(255, 255, 255, 0.8);
+            ">Air Quality Index</div>
+        </div>
+        """
+    
+    def _hex_to_rgb(self, hex_color: str) -> str:
+        """Convert hex color to RGB values"""
+        hex_color = hex_color.lstrip('#')
+        return f"{int(hex_color[0:2], 16)}, {int(hex_color[2:4], 16)}, {int(hex_color[4:6], 16)}"
+    
+    def create_loading_skeleton(self, height: str = "100px", width: str = "100%") -> str:
+        """Create advanced loading skeleton with shimmer effect"""
+        return f"""
+        <div class="loading-skeleton" style="height: {height}; width: {width};">
+            <div style="height: 100%; width: 100%; border-radius: var(--radius-md);"></div>
+        </div>
+        """
+    
+    def create_loading_spinner(self, size: str = "40px", color: str = "var(--primary)") -> str:
+        """Create premium loading spinner"""
+        return f"""
+        <div style="display: flex; justify-content: center; align-items: center; padding: var(--space-xl);">
+            <div style="
+                width: {size};
+                height: {size};
+                border: 3px solid rgba(255, 255, 255, 0.1);
+                border-top-color: {color};
+                border-radius: 50%;
+                animation: rotate 1s linear infinite;
+            "></div>
+        </div>
         """
     
     def create_gradient_text(self, text: str, gradient: str = "linear-gradient(135deg, var(--primary), var(--accent))") -> str:
-        """Create gradient text"""
+        """Create gradient text with premium styling"""
         return f"""
-        <span class="gradient-text" style="background: {gradient}; -webkit-background-clip: text; -webkit-text-fill-color: transparent;">{text}</span>
-        """
-    
-    def create_glass_card(self, content: str, padding: str = "var(--space-lg)", 
-                         border_radius: str = "var(--radius-lg)") -> str:
-        """Create glassmorphism card"""
-        return f"""
-        <div class="glass-card" style="padding: {padding}; border-radius: {border_radius};">
-            {content}
-        </div>
+        <span style="
+            background: {gradient};
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            font-weight: 600;
+        ">{text}</span>
         """
     
     def create_notification_toast(self, message: str, type: str = "info", duration: int = 5000) -> str:
-        """Create notification toast"""
+        """Create premium notification toast"""
         icons = {
             "success": "✅",
             "error": "❌", 
@@ -955,107 +1145,103 @@ class UIComponents:
         }
         
         return f"""
-        <div class="toast toast-{type}" style="
-            position: fixed;
-            top: 20px;
-            right: 20px;
-            background: var(--glass-bg);
-            border: 1px solid var(--glass-border);
-            border-radius: var(--radius-md);
-            padding: var(--space-md) var(--space-lg);
-            backdrop-filter: var(--glass-backdrop);
-            color: white;
-            z-index: 1000;
-            animation: slideIn 0.3s ease-out;
-        ">
+        <div class="toast-notification toast-{type}" id="toast-{int(datetime.now().timestamp())}">
             <div style="display: flex; align-items: center; gap: var(--space-sm);">
-                <span>{icons.get(type, "ℹ️")}</span>
-                <span>{message}</span>
+                <span style="font-size: 1.2rem;">{icons.get(type, "ℹ️")}</span>
+                <div>
+                    <div style="font-weight: 600; margin-bottom: 2px;">{type.title()}</div>
+                    <div style="font-size: 0.9rem; opacity: 0.9;">{message}</div>
+                </div>
             </div>
         </div>
         
-        <style>
-        @keyframes slideIn {{
-            from {{ transform: translateX(100%); opacity: 0; }}
-            to {{ transform: translateX(0); opacity: 1; }}
-        }}
-        </style>
-        
         <script>
         setTimeout(() => {{
-            const toast = document.querySelector('.toast');
+            const toast = document.getElementById('toast-{int(datetime.now().timestamp())}');
             if (toast) {{
-                toast.style.animation = 'slideIn 0.3s ease-out reverse';
+                toast.style.animation = 'slideUp 0.3s ease-out reverse';
                 setTimeout(() => toast.remove(), 300);
             }}
         }}, {duration});
         </script>
         """
-        
-    def create_weather_comparison_card(self, locations: List[Dict]) -> str:
-        """Create weather comparison card for multiple locations"""
+    
+    def create_chart_container(self, title: str, content: str) -> str:
+        """Create premium chart container with title and styling"""
+        return f"""
+        <div class="chart-container-premium">
+            <h3 style="
+                color: white;
+                margin-bottom: var(--space-lg);
+                font-size: var(--text-xl);
+                font-weight: 600;
+                text-align: center;
+            ">{title}</h3>
+            {content}
+        </div>
+        """
+    
+    def create_status_indicator(self, status: str, label: str) -> str:
+        """Create premium status indicator"""
+        return f"""
+        <div style="display: inline-flex; align-items: center; gap: var(--space-sm);">
+            <div class="status-dot status-{status}"></div>
+            <span style="color: rgba(255, 255, 255, 0.8); font-size: 0.9rem;">{label}</span>
+        </div>
+        """
+    
+    def create_interactive_button(self, text: str, icon: str = "", onclick: str = "", 
+                                variant: str = "primary") -> str:
+        """Create premium interactive button"""
+        return f"""
+        <button class="premium-button" onclick="{onclick}" style="
+            background: linear-gradient(135deg, var(--{variant}), var(--secondary));
+        ">
+            {f'<span style="margin-right: 8px;">{icon}</span>' if icon else ''}
+            {text}
+        </button>
+        """
+    
+    def create_weather_comparison_grid(self, locations: List[Dict]) -> str:
+        """Create premium weather comparison grid"""
         cards_html = ""
         for location in locations:
             cards_html += f"""
-            <div class="comparison-item">
-                <h4>{location['city']}</h4>
-                <div class="temp">{location['temp']}°</div>
-                <div class="condition">{location['condition']}</div>
+            <div class="glass-card interactive-card" style="padding: var(--space-lg); text-align: center;">
+                <h4 style="color: white; margin-bottom: var(--space-md);">{location.get('city', 'Unknown')}</h4>
+                <div style="
+                    font-size: var(--text-3xl);
+                    font-weight: 700;
+                    color: var(--primary);
+                    margin-bottom: var(--space-sm);
+                ">{location.get('temp', 0):.0f}°</div>
+                <div style="
+                    font-size: var(--text-sm);
+                    color: rgba(255, 255, 255, 0.7);
+                    text-transform: capitalize;
+                ">{location.get('condition', 'Unknown')}</div>
+                <div style="
+                    margin-top: var(--space-md);
+                    padding-top: var(--space-md);
+                    border-top: 1px solid rgba(255, 255, 255, 0.1);
+                    display: flex;
+                    justify-content: space-between;
+                    font-size: var(--text-xs);
+                    color: rgba(255, 255, 255, 0.6);
+                ">
+                    <span>💧 {location.get('humidity', 0)}%</span>
+                    <span>🌬️ {location.get('wind', 0)} m/s</span>
+                </div>
             </div>
             """
         
         return f"""
-        <div class="weather-comparison glass-card">
-            <h3>Weather Comparison</h3>
-            <div class="comparison-grid">
-                {cards_html}
-            </div>
-        </div>
-        
-        <style>
-        .weather-comparison {{
-            padding: var(--space-xl);
-            margin: var(--space-lg) 0;
-        }}
-        
-        .comparison-grid {{
+        <div style="
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-            gap: var(--space-md);
-            margin-top: var(--space-lg);
-        }}
-        
-        .comparison-item {{
-            text-align: center;
-            padding: var(--space-md);
-            background: rgba(255, 255, 255, 0.05);
-            border-radius: var(--radius-md);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            transition: var(--transition-normal);
-        }}
-        
-        .comparison-item:hover {{
-            background: rgba(255, 255, 255, 0.08);
-            border-color: var(--primary);
-            transform: translateY(-2px);
-        }}
-        
-        .comparison-item h4 {{
-            color: white;
-            margin-bottom: var(--space-sm);
-            font-size: 0.9rem;
-        }}
-        
-        .comparison-item .temp {{
-            font-size: 1.5rem;
-            font-weight: 700;
-            color: var(--primary);
-            margin-bottom: var(--space-xs);
-        }}
-        
-        .comparison-item .condition {{
-            font-size: 0.8rem;
-            color: rgba(255, 255, 255, 0.7);
-        }}
-        </style>
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: var(--space-lg);
+            margin: var(--space-lg) 0;
+        ">
+            {cards_html}
+        </div>
         """
