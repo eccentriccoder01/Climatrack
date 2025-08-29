@@ -819,15 +819,18 @@ class PremiumLocationDetector:
     def render_air_quality_widget(self):
         """Render an AQI widget."""
         st.markdown("#### 🌬️ Air Quality")
-        if st.session_state.get('air_quality_data'):
-            aqi_data = st.session_state.air_quality_data['list'][0]
+        aqi_full_data = st.session_state.get('air_quality_data')
+        
+        # Add robust checks for the existence and structure of the data
+        if aqi_full_data and 'list' in aqi_full_data and aqi_full_data['list']:
+            aqi_data = aqi_full_data['list'][0]
             aqi = aqi_data['main']['aqi']
             level_info = self.weather_api._get_aqi_health_info(aqi)
             level = level_info['level']
             color_map = {'Good': '#10b981', 'Fair': '#f59e0b', 'Moderate': '#f97316', 'Poor': '#ef4444', 'Very Poor': '#dc2626'}
-            st.markdown(self.ui.create_aqi_indicator(aqi, level, color_map.get(level, '#f97316')))
+            st.markdown(self.ui.create_aqi_indicator(aqi, level, color_map.get(level, '#f97316')), unsafe_allow_html=True)
         else:
-            st.write("No data available.")
+            st.write("No air quality data available.")
 
     def render_uv_index_widget(self):
         """Render a widget for UV index."""
