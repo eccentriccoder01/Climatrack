@@ -31,9 +31,15 @@ st.set_page_config(
 )
 
 def get_img_as_base64(file):
-    with open(file, "rb") as f:
-        data = f.read()
-    return base64.b64encode(data).decode()
+    script_dir = os.path.dirname(os.path.abspath(__file__))
+    abs_file_path = os.path.join(script_dir, file)
+    try:
+        with open(abs_file_path, "rb") as f:
+            data = f.read()
+        return base64.b64encode(data).decode()
+    except FileNotFoundError:
+        st.error(f"Image file not found at: {abs_file_path}. Please check your file path and project structure.")
+        return None
 
 class PremiumWeatherApp:
     """World-class premium weather intelligence platform"""
@@ -127,21 +133,26 @@ class PremiumWeatherApp:
         """Load world-class premium styling system"""
         self.ui.load_premium_css()
         img = get_img_as_base64("assets/Background.png")
-        page_bg_img = f"""
-        <style>
-        [data-testid="stAppViewContainer"] > .main {{
-            background-image: url("data:image/png;base64,{img}");
-            background-size: cover;
-            background-position: center center;
-            background-repeat: no-repeat;
-            background-attachment: fixed;
-        }}
-
-        [data-testid="stSidebar"] > div:first-child {{
-            background: rgba(20, 20, 30, 0.7);
-            backdrop-filter: blur(10px);
-        }}
-        </style>
+        if img is None:
+            page_bg_img = """
+            <style>
+            [data-testid="stAppViewContainer"] > .main {
+                background-color: #ffffff; /* Fallback dark background */
+            }
+            </style>
+            """
+        else:
+            page_bg_img = f"""
+            <style>
+            [data-testid="stAppViewContainer"] > .main {{
+                background-image: url("data:image/png;base64,{img}");
+                background-size: cover;
+                background-position: center center;
+                background-repeat: no-repeat;
+                background-attachment: fixed;
+            }}
+            /* ... rest of your styles */
+            </style>
         """
         st.markdown(page_bg_img, unsafe_allow_html=True)
         
