@@ -130,19 +130,40 @@ class PremiumWeatherApp:
             st.session_state.app_initialized = True
                 
     # In main.py
+
     def load_premium_styling(self):
-        """A temporary function to test background styling."""
+        """Load world-class premium styling system"""
         self.ui.load_premium_css()
+        img = get_img_as_base64("assets/Background.png")
         
-        # This is a test to see if ANY background style can be applied.
-        # We are using 'hotpink' because it's impossible to miss.
-        st.markdown("""
+        # This block contains the final, corrected CSS
+        page_bg_img = f"""
         <style>
-        [data-testid="stAppViewContainer"] > .main {
-            background: hotpink !important;
-        }
+        /* Set the background image on the main container */
+        [data-testid="stAppViewContainer"] > .main {{
+            background-image: url("data:image/png;base64,{img}");
+            background-size: cover;
+            background-position: center center;
+            background-repeat: no-repeat;
+            background-attachment: fixed;
+        }}
+
+        /* Make the inner container transparent so the background shows through */
+        .stAppViewBlockContainer {{
+            background: transparent !important;
+        }}
+
+        /* Styling for the sidebar */
+        .stSidebar {{
+            background: rgba(255, 255, 255, 0.02) !important;
+            border-right: 1px solid rgba(255, 255, 255, 0.1) !important;
+            backdrop-filter: blur(20px) !important;
+        }}
         </style>
-        """, unsafe_allow_html=True)
+        """
+        
+        # The code now only injects one block of essential styles
+        st.markdown(page_bg_img, unsafe_allow_html=True)
         
     def render_premium_sidebar(self):
         """Render sophisticated sidebar navigation"""
