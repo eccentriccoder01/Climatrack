@@ -151,11 +151,7 @@ class PremiumWeatherApp:
         <style>
         /* Premium App Framework */
         .main-container {
-            background: 
-                radial-gradient(circle at 20% 80%, rgba(120, 119, 198, 0.3) 0%, transparent 50%),
-                radial-gradient(circle at 80% 20%, rgba(255, 119, 198, 0.3) 0%, transparent 50%),
-                radial-gradient(circle at 40% 40%, rgba(120, 200, 255, 0.2) 0%, transparent 50%),
-                linear-gradient(135deg, #0a0a0f 0%, #1a0b2e 25%, #16213e 50%, #0f3460 75%, #0a1a2e 100%);
+            /* CORRECTED: The conflicting background property has been removed. */
             min-height: 100vh;
             position: relative;
         }
