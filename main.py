@@ -30,6 +30,11 @@ st.set_page_config(
     }
 )
 
+def get_img_as_base64(file):
+    with open(file, "rb") as f:
+        data = f.read()
+    return base64.b64encode(data).decode()
+
 class PremiumWeatherApp:
     """World-class premium weather intelligence platform"""
     
@@ -120,6 +125,25 @@ class PremiumWeatherApp:
                 
     def load_premium_styling(self):
         """Load world-class premium styling system"""
+        img = get_img_as_base64("assets/background.jpg")
+        page_bg_img = f"""
+        <style>
+        [data-testid="stAppViewContainer"] > .main {{
+            background-image: url("data:image/png;base64,{img}");
+            background-size: cover;
+            background-position: center center;
+            background-repeat: no-repeat;
+            background-attachment: fixed;
+        }}
+
+        [data-testid="stSidebar"] > div:first-child {{
+            background: rgba(20, 20, 30, 0.7);
+            backdrop-filter: blur(10px);
+        }}
+        </style>
+        """
+        st.markdown(page_bg_img, unsafe_allow_html=True)
+        
         self.ui.load_premium_css()
         
         # Add custom premium enhancements
