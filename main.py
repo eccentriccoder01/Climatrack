@@ -1261,20 +1261,12 @@ class PremiumWeatherApp:
             status_text.empty()
     
     def run(self):
-        """Main application runner"""
-        self.initialize_session_state()
-        self.load_premium_styling()
-        
-        self.render_premium_sidebar()
-        self.render_content_area()
-        
-        st.markdown("""
-            <div class="fab-container">
-                <button class="fab" title="Settings">⚙️</button>
-                <button class="fab" title="Refresh">🔄</button>
-                <button class="fab" title="Share">📤</button>
-            </div>
-        """, unsafe_allow_html=True)
+            """Main application runner"""
+            self.initialize_session_state()
+            self.load_premium_styling()
+            
+            self.render_premium_sidebar()
+            self.render_content_area()
 
 if __name__ == "__main__":
     app = PremiumWeatherApp()
