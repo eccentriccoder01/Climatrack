@@ -163,17 +163,8 @@ class UIComponents:
         
         /* Advanced Global Styles */
         .main {
-            background: 
-                radial-gradient(circle at 20% 80%, rgba(var(--secondary-rgb), 0.3) 0%, transparent 50%),
-                radial-gradient(circle at 80% 20%, rgba(var(--warm-rgb), 0.2) 0%, transparent 50%),
-                radial-gradient(circle at 40% 40%, rgba(var(--cold-rgb), 0.2) 0%, transparent 50%),
-                linear-gradient(135deg, 
-                    #0a0a0f 0%, 
-                    #1a0b2e 25%, 
-                    #16213e 50%, 
-                    #0f3460 75%, 
-                    #0a1a2e 100%
-                );
+            /* CORRECTED: The conflicting background property has been removed. */
+            /* The background image from main.py will now be visible. */
             min-height: 100vh;
             font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
             position: relative;
