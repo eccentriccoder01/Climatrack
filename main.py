@@ -503,7 +503,7 @@ class PremiumWeatherApp:
                 padding: 40px;
                 margin: 20px 0;
                 border: 1px solid rgba(255, 255, 255, 0.1);
-                backdrop-filter: blur(20px);
+                backdrop-filter: blur(5px);
                 position: relative;
                 overflow: hidden;
             ">
