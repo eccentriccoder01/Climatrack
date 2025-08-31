@@ -11,6 +11,7 @@ import time
 import pandas as pd
 import numpy as np
 import math
+import os
 
 from weather_api import PremiumWeatherAPI
 from location_detector import PremiumLocationDetector
