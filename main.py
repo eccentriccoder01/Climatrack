@@ -972,27 +972,51 @@ class PremiumWeatherApp:
             st.info("Note: For a fully interactive map experience, integration with a mapping library like Folium or Leaflet is recommended. This view displays the relevant map tile for the selected location.")
 
     def render_analytics_view(self):
-        """Render the weather analytics view with trend analysis."""
-        st.markdown("## 📊 Weather Analytics")
-        if not st.session_state.get('processed_forecast_data'):
-            st.info("Search for a location to generate weather analytics.")
-            return
-        forecast_data = st.session_state.processed_forecast_data
-        trends = self.data_processor.calculate_weather_trends_advanced(forecast_data)
-        st.markdown("#### Key Trends for the Next 7 Days")
-        cols = st.columns(4)
-        with cols[0]:
-            temp_trend = trends['temperature']['avg_trend']
-            st.markdown(self.ui.create_premium_metric_card("🌡️", "Temperature Trend", temp_trend['direction'].title(), f"{temp_trend['slope']:.1f}°/day"), unsafe_allow_html=True)
-        with cols[1]:
-            pressure_trend = trends['pressure']['trend']
-            st.markdown(self.ui.create_premium_metric_card("💨", "Pressure Trend", pressure_trend['direction'].title(), f"{pressure_trend['slope']:.1f} hPa/day"), unsafe_allow_html=True)
-        with cols[2]:
-            comfort_trend = trends['comfort']['trend']
-            st.markdown(self.ui.create_premium_metric_card("😊", "Comfort Trend", comfort_trend['direction'].title(), f"{comfort_trend['slope']:.1f}%/day"), unsafe_allow_html=True)
-        with cols[3]:
-            change_prob = trends['pressure']['weather_change_likelihood']['probability']
-            st.markdown(self.ui.create_premium_metric_card("🔄", "Change Likelihood", f"{change_prob:.0%}", "Chance of pattern shift"), unsafe_allow_html=True)
+            """Render the weather analytics view with trend analysis."""
+            st.markdown("## 📊 Weather Analytics")
+
+            if not st.session_state.get('processed_forecast_data'):
+                st.info("Search for a location to generate weather analytics.")
+                return
+
+            forecast_data = st.session_state.processed_forecast_data
+            trends = self.data_processor.calculate_weather_trends_advanced(forecast_data)
+
+            st.markdown("#### Key Trends for the Next 7 Days")
+            cols = st.columns(4)
+            with cols[0]:
+                temp_trend = trends['temperature']['avg_trend']
+                # ADDED unsafe_allow_html=True
+                st.markdown(self.ui.create_premium_metric_card("🌡️", "Temperature Trend", temp_trend['direction'].title(), f"{temp_trend['slope']:.1f}°/day"), unsafe_allow_html=True)
+            with cols[1]:
+                pressure_trend = trends['pressure']['trend']
+                # ADDED unsafe_allow_html=True
+                st.markdown(self.ui.create_premium_metric_card("💨", "Pressure Trend", pressure_trend['direction'].title(), f"{pressure_trend['slope']:.1f} hPa/day"), unsafe_allow_html=True)
+            with cols[2]:
+                comfort_trend = trends['comfort']['trend']
+                # ADDED unsafe_allow_html=True
+                st.markdown(self.ui.create_premium_metric_card("😊", "Comfort Trend", comfort_trend['direction'].title(), f"{comfort_trend['slope']:.1f}%/day"), unsafe_allow_html=True)
+            with cols[3]:
+                change_prob = trends['pressure']['weather_change_likelihood']['probability']
+                # ADDED unsafe_allow_html=True
+                st.markdown(self.ui.create_premium_metric_card("🔄", "Change Likelihood", f"{change_prob:.0%}", "Chance of pattern shift"), unsafe_allow_html=True)
+
+            # --- Detailed Analytics Sections --- (This part remains unchanged)
+            with st.expander("🌡️ Temperature Deep Dive", expanded=True):
+                temp_analytics = trends['temperature']
+                st.markdown(f"**Volatility:** {temp_analytics['volatility']:.2f}°C (day-to-day fluctuation)")
+                st.markdown(f"**Heat Wave Risk:** {temp_analytics['heat_wave_risk']:.0%}")
+                st.markdown(f"**Cold Snap Risk:** {temp_analytics['cold_snap_risk']:.0%}")
+                diurnal_trend = temp_analytics['diurnal_range_trend']
+                st.markdown(f"**Daily Temp Range Trend:** {diurnal_trend['direction'].title()} ({diurnal_trend['slope']:.2f}°C/day)")
+
+            with st.expander("😊 Comfort & Activity Forecast", expanded=True):
+                comfort_analytics = trends['comfort']
+                st.markdown(f"**Average Comfort Score:** {comfort_analytics['avg']:.0f}%")
+                st.markdown(f"**Forecast Quality:** {comfort_analytics['forecast_quality']['quality'].title()}")
+                st.markdown("**Optimal Days:**")
+                for day in comfort_analytics['optimal_days']:
+                    st.markdown(f"- **{day['day']}**: Score {day['overall_score']:.0f}/100 ({', '.join(day['reasons'])})")
 
     def render_compare_view(self):
         """Render the location comparison view."""
