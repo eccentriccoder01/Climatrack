@@ -10,6 +10,7 @@ from io import BytesIO
 import time
 import pandas as pd
 import numpy as np
+import math
 
 from weather_api import PremiumWeatherAPI
 from location_detector import PremiumLocationDetector
@@ -603,6 +604,14 @@ class PremiumWeatherApp:
         
         st.markdown('</div>', unsafe_allow_html=True)
     
+    def _get_tile_coords(self, lat: float, lon: float, zoom: int) -> tuple[int, int]:
+        """Convert lat/lon to slippy map tile coordinates."""
+        lat_rad = math.radians(lat)
+        n = 2.0 ** zoom
+        xtile = int((lon + 180.0) / 360.0 * n)
+        ytile = int((1.0 - math.asinh(math.tan(lat_rad)) / math.pi) / 2.0 * n)
+        return xtile, ytile
+    
     def render_dashboard_view(self):
         """Render premium dashboard with customizable widgets"""
         if not st.session_state.weather_data:
@@ -922,24 +931,37 @@ class PremiumWeatherApp:
         st.components.v1.html(f'<iframe width="100%" height="600" src="{embed_url}" frameborder="0"></iframe>', height=610)
 
     def render_maps_view(self):
-        """Render various interactive weather map layers."""
-        st.markdown("## 🌍 Interactive Weather Maps")
-        if not st.session_state.get('location_data'):
-            st.info("Search for a location to explore weather maps.")
-            return
-        map_layers = {
-            'Temperature': 'temp_new', 'Precipitation': 'precipitation_new',
-            'Wind Speed': 'wind_new', 'Pressure': 'pressure_new', 'Clouds': 'clouds_new'
-        }
-        selected_layer_name = st.selectbox("Select Map Layer", list(map_layers.keys()))
-        selected_layer_code = map_layers[selected_layer_name]
-        lat = st.session_state.location_data['lat']
-        lon = st.session_state.location_data['lon']
-        zoom = 6
-        tile_url = f"https://tile.openweathermap.org/map/{selected_layer_code}/{zoom}/{int(lon)}/{int(lat)}.png?appid={self.weather_api.api_key}"
-        st.markdown(f"#### {selected_layer_name} Map")
-        st.image(tile_url, caption=f"Weather map layer showing {selected_layer_name.lower()}.", use_column_width=True)
-        st.info("Note: For a fully interactive map experience, integration with a mapping library like Folium or Leaflet is recommended. This view displays the relevant map tile for the selected location.")
+            """Render various interactive weather map layers."""
+            st.markdown("## 🌍 Interactive Weather Maps")
+
+            if not st.session_state.get('location_data'):
+                st.info("Search for a location to explore weather maps.")
+                return
+
+            map_layers = {
+                'Temperature': 'temp_new',
+                'Precipitation': 'precipitation_new',
+                'Wind Speed': 'wind_new',
+                'Pressure': 'pressure_new',
+                'Clouds': 'clouds_new'
+            }
+
+            selected_layer_name = st.selectbox("Select Map Layer", list(map_layers.keys()))
+            selected_layer_code = map_layers[selected_layer_name]
+
+            lat = st.session_state.location_data['lat']
+            lon = st.session_state.location_data['lon']
+            zoom = 6
+
+            # CORRECTED: Convert lat/lon to the correct tile coordinates
+            xtile, ytile = self._get_tile_coords(lat, lon, zoom)
+
+            # Build the URL with the correct x and y tile values
+            tile_url = f"https://tile.openweathermap.org/map/{selected_layer_code}/{zoom}/{xtile}/{ytile}.png?appid={self.weather_api.api_key}"
+            
+            st.markdown(f"#### {selected_layer_name} Map")
+            st.image(tile_url, caption=f"Weather map layer showing {selected_layer_name.lower()}.", use_column_width=True)
+            st.info("Note: For a fully interactive map experience, integration with a mapping library like Folium or Leaflet is recommended. This view displays the relevant map tile for the selected location.")
 
     def render_analytics_view(self):
         """Render the weather analytics view with trend analysis."""
