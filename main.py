@@ -132,24 +132,43 @@ class PremiumWeatherApp:
     # In main.py
 
     def load_premium_styling(self):
-        """Load world-class premium styling system"""
-        self.ui.load_premium_css()
+        """Load world-class premium styling system with a global override for the background."""
         img = get_img_as_base64("assets/Background.png")
-        
-        # This block contains the final, corrected CSS
-        page_bg_img = f"""
+
+        # This is a single, consolidated block of CSS.
+        # It includes the styles from ui_components.py and adds a brute-force background fix at the end.
+        st.markdown(f"""
         <style>
-        /* Set the background image on the main container */
-        [data-testid="stAppViewContainer"] > .main {{
-            background-image: url("data:image/png;base64,{img}");
-            background-size: cover;
-            background-position: center center;
-            background-repeat: no-repeat;
-            background-attachment: fixed;
+        /* Import Premium Fonts */
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@100..900&family=JetBrains+Mono:wght@100..800&family=Playfair+Display:wght@400..900&family=Space+Grotesk:wght@300..700&display=swap');
+        
+        /* Root Variables */
+        :root {{
+            --primary: #00d4ff; --secondary: #7c3aed; --accent: #06ffa5;
+            --warm: #ff6b35; --cold: #4facfe; --success: #10b981;
+            --warning: #f59e0b; --error: #ef4444; --info: #3b82f6;
         }}
 
-        /* Make the inner container transparent so the background shows through */
+        /*
+        ============================================
+        =         GLOBAL BACKGROUND OVERRIDE         =
+        = This is the brute-force fix. We are now    =
+        = targeting every possible parent element    =
+        = to ensure the background is applied.       =
+        ============================================
+        */
+        body, #root, [data-testid="stAppViewContainer"], [data-testid="stAppViewContainer"] > .main {{
+            background-image: url("data:image/png;base64,{img}") !important;
+            background-size: cover !important;
+            background-position: center center !important;
+            background-repeat: no-repeat !important;
+            background-attachment: fixed !important;
+            background-color: #0F1116 !important; /* Fallback color */
+        }}
+
+        /* This forces the content container on top to be transparent */
         .stAppViewBlockContainer {{
+            background-color: transparent !important;
             background: transparent !important;
         }}
 
@@ -159,11 +178,19 @@ class PremiumWeatherApp:
             border-right: 1px solid rgba(255, 255, 255, 0.1) !important;
             backdrop-filter: blur(20px) !important;
         }}
-        </style>
-        """
         
-        # The code now only injects one block of essential styles
-        st.markdown(page_bg_img, unsafe_allow_html=True)
+        /* Hide Default Streamlit Elements */
+        .stDeployButton, #MainMenu, footer, header, .stDecoration {{
+            display: none !important;
+        }}
+        
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {{ width: 8px; height: 8px; }}
+        ::-webkit-scrollbar-track {{ background: rgba(0, 0, 0, 0.2); }}
+        ::-webkit-scrollbar-thumb {{ background: linear-gradient(180deg, var(--primary), var(--secondary)); border-radius: 9999px; }}
+        
+        </style>
+        """, unsafe_allow_html=True)
         
     def render_premium_sidebar(self):
         """Render sophisticated sidebar navigation"""
