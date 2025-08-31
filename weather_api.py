@@ -724,13 +724,12 @@ class PremiumWeatherAPI:
         
         return results
     
-    def get_historical_weather_advanced(self, lat: float, lon: float, 
-                                      target_date: datetime, 
+def get_historical_weather_advanced(self, lat: float, lon: float, 
+                                      target_date: datetime.date, 
                                       units: str = "metric") -> Optional[Dict]:
         """Get historical weather data with enhanced analysis"""
-        
-        # Convert to Unix timestamp
-        dt_timestamp = int(target_date.timestamp())
+        target_datetime = datetime.combine(target_date, datetime.min.time())
+        dt_timestamp = int(target_datetime.timestamp())
         
         try:
             url = self.premium_endpoints['historical']
