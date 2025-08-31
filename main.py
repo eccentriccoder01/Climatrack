@@ -137,7 +137,7 @@ class PremiumWeatherApp:
             page_bg_img = """
             <style>
             [data-testid="stAppViewContainer"] > .main {
-                background-color: #ffffff; /* Fallback dark background */
+                background-color: #ffffff;
             }
             </style>
             """
