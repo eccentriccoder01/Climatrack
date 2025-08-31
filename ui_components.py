@@ -9,46 +9,7 @@ import plotly.express as px
 class UIComponents:
     """World-class UI component library with premium animations and interactions"""
     
-    def __init__(self):
-        self.themes = {
-            "premium_dark": {
-                "name": "Premium Dark",
-                "primary": "#00d4ff",
-                "secondary": "#7c3aed",
-                "accent": "#06ffa5",
-                "warm": "#ff6b35",
-                "cold": "#4facfe",
-                "background": "#0a0a0f",
-                "surface": "rgba(255, 255, 255, 0.05)",
-                "text_primary": "#ffffff",
-                "text_secondary": "rgba(255, 255, 255, 0.7)"
-            },
-            "premium_light": {
-                "name": "Premium Light",
-                "primary": "#0284c7",
-                "secondary": "#7c3aed",
-                "accent": "#059669",
-                "warm": "#dc2626",
-                "cold": "#2563eb",
-                "background": "#ffffff",
-                "surface": "rgba(0, 0, 0, 0.05)",
-                "text_primary": "#1f2937",
-                "text_secondary": "rgba(31, 41, 55, 0.7)"
-            },
-            "aurora": {
-                "name": "Aurora Borealis",
-                "primary": "#00d4ff",
-                "secondary": "#7c3aed",
-                "accent": "#06ffa5",
-                "warm": "#ff6b35",
-                "cold": "#4facfe",
-                "background": "#0a0a0f",
-                "surface": "rgba(255, 255, 255, 0.05)",
-                "text_primary": "#ffffff",
-                "text_secondary": "rgba(255, 255, 255, 0.7)"
-            }
-        }
-        
+    def __init__(self):        
         self.animation_presets = {
             "fade_in": "fadeIn 0.5s ease-out",
             "slide_up": "slideUp 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
