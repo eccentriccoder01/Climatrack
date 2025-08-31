@@ -125,7 +125,7 @@ class PremiumWeatherApp:
                 
     def load_premium_styling(self):
         """Load world-class premium styling system"""
-        img = get_img_as_base64("assets/background.jpg")
+        img = get_img_as_base64("assets/background.png")
         page_bg_img = f"""
         <style>
         [data-testid="stAppViewContainer"] > .main {{
