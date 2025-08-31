@@ -725,11 +725,9 @@ class PremiumWeatherAPI:
         return results
     
     def get_historical_weather_advanced(self, lat: float, lon: float, 
-                                      target_date: datetime.date, # Type hint updated for clarity 
+                                      target_date: datetime.date,
                                       units: str = "metric") -> Optional[Dict]:
         """Get historical weather data with enhanced analysis"""
-        
-        # Convert the date object to a datetime object (at midnight) to get a timestamp
         target_datetime = datetime.combine(target_date, datetime.min.time())
         dt_timestamp = int(target_datetime.timestamp())
         
