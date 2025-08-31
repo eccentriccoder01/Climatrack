@@ -139,24 +139,15 @@ class PremiumWeatherApp:
         # It includes the styles from ui_components.py and adds a brute-force background fix at the end.
         st.markdown(f"""
         <style>
-        /* Import Premium Fonts */
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@100..900&family=JetBrains+Mono:wght@100..800&family=Playfair+Display:wght@400..900&family=Space+Grotesk:wght@300..700&display=swap');
         
         /* Root Variables */
         :root {{
-            --primary: #00d4ff; --secondary: #7c3aed; --accent: #06ffa5;
+            --secondary: #00d4ff; --primary: #7c3aed; --accent: #06ffa5;
             --warm: #ff6b35; --cold: #4facfe; --success: #10b981;
             --warning: #f59e0b; --error: #ef4444; --info: #3b82f6;
         }}
 
-        /*
-        ============================================
-        =         GLOBAL BACKGROUND OVERRIDE         =
-        = This is the brute-force fix. We are now    =
-        = targeting every possible parent element    =
-        = to ensure the background is applied.       =
-        ============================================
-        */
         body, #root, [data-testid="stAppViewContainer"], [data-testid="stAppViewContainer"] > .main {{
             background-image: url("data:image/png;base64,{img}") !important;
             background-size: cover !important;
@@ -166,7 +157,6 @@ class PremiumWeatherApp:
             background-color: #0F1116 !important; /* Fallback color */
         }}
 
-        /* This forces the content container on top to be transparent */
         .stAppViewBlockContainer {{
             background-color: transparent !important;
             background: transparent !important;
@@ -202,7 +192,7 @@ class PremiumWeatherApp:
                         font-family: 'Playfair Display', serif;
                         font-size: 28px;
                         font-weight: 800;
-                        background: linear-gradient(135deg, var(--primary), var(--accent));
+                        background: linear-gradient(135deg, var(--secondary), var(--accent));
                         -webkit-background-clip: text;
                         -webkit-text-fill-color: transparent;
                         margin: 0;
@@ -602,7 +592,23 @@ class PremiumWeatherApp:
     
     def render_welcome_screen(self):
         """Render premium welcome screen"""
-        st.markdown("""
+        c_logo_base64 = get_img_as_base64("assets/C.png")
+        if c_logo_base64 is None:
+            logo_html = "C" 
+        else:
+            logo_html = f"""
+            <img src="data:image/png;base64,{c_logo_base64}" 
+                 alt="C Logo" 
+                 style="
+                    height: 1.2em;
+                    vertical-align: middle;
+                    margin-right: 0.05em;
+                    margin-left: 0.3em;
+                    filter: drop-shadow(0 0 5px rgba(0, 212, 255, 0.5));
+                 ">
+            """
+
+        st.markdown(f"""
             <div style="
                 text-align: center;
                 padding: 60px 40px;
@@ -615,11 +621,16 @@ class PremiumWeatherApp:
                 <h1 style="
                     font-size: 3rem;
                     font-weight: 800;
-                    background: linear-gradient(135deg, var(--primary), var(--accent));
+                    background: linear-gradient(135deg, var(--primary), var(--warning));
                     -webkit-background-clip: text;
                     -webkit-text-fill-color: transparent;
                     margin-bottom: 20px;
-                ">🌤️ Welcome to Climatrack Premium</h1>
+                    display: flex;
+                    align-items: center;
+                    justify-content: center; 
+                ">
+                    🌤️ Welcome to {logo_html}limatrack Premium
+                </h1>
                 <p style="
                     font-size: 1.2rem;
                     color: rgba(255, 255, 255, 0.8);
@@ -630,7 +641,7 @@ class PremiumWeatherApp:
                     line-height: 1.6;
                 ">
                     Experience the world's most advanced weather intelligence platform with AI-powered insights,
-                    premium visualizations, and real-time global weather data.
+                    premium visualisations, and real-time global weather data.
                 </p>
             </div>
         """, unsafe_allow_html=True)
