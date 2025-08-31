@@ -55,7 +55,7 @@ class UIComponents:
             --glass-border-hover: rgba(255, 255, 255, 0.15);
             --glass-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
             --glass-shadow-hover: 0 16px 48px rgba(0, 0, 0, 0.4);
-            --glass-backdrop: blur(20px);
+            --glass-backdrop: blur(10px);
             --glass-backdrop-strong: blur(40px);
             
             /* Spacing System (8px base) */

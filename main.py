@@ -609,7 +609,7 @@ class PremiumWeatherApp:
                 background: linear-gradient(135deg, rgba(0, 212, 255, 0.1), rgba(124, 58, 237, 0.1));
                 border-radius: 24px;
                 border: 1px solid rgba(255, 255, 255, 0.1);
-                backdrop-filter: blur(20px);
+                backdrop-filter: blur(5px);
                 margin: 40px 0;
             ">
                 <h1 style="
@@ -653,7 +653,7 @@ class PremiumWeatherApp:
                         background: rgba(255, 255, 255, 0.03);
                         border-radius: 16px;
                         border: 1px solid rgba(255, 255, 255, 0.1);
-                        backdrop-filter: blur(10px);
+                        backdrop-filter: blur(5px);
                         margin: 10px 0;
                         transition: transform 0.3s ease;
                     ">
