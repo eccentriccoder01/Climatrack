@@ -79,7 +79,6 @@ class PremiumWeatherApp:
             # UI state
             'current_view': 'dashboard',
             'sidebar_expanded': True,
-            'theme_mode': 'premium_dark',
             'background_mode': 'dynamic',
             'animation_enabled': True,
             'sound_enabled': False,
@@ -496,18 +495,6 @@ class PremiumWeatherApp:
             
             # Settings section
             st.markdown("### ⚙️ Settings")
-            
-            # Theme selector
-            new_theme = st.selectbox(
-                "Theme",
-                ["premium_dark", "premium_light", "aurora", "sunset", "ocean"],
-                index=["premium_dark", "premium_light", "aurora", "sunset", "ocean"].index(
-                    st.session_state.theme_mode
-                )
-            )
-            if new_theme != st.session_state.theme_mode:
-                st.session_state.theme_mode = new_theme
-                st.rerun()
             
             # Units selector
             new_units = st.selectbox(
