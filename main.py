@@ -984,22 +984,23 @@ class PremiumWeatherApp:
 
             st.markdown("#### Key Trends for the Next 7 Days")
             cols = st.columns(4)
+            
             with cols[0]:
                 temp_trend = trends['temperature']['avg_trend']
-                # ADDED unsafe_allow_html=True
-                st.markdown(self.ui.create_premium_metric_card("🌡️", "Temperature Trend", temp_trend['direction'].title(), f"{temp_trend['slope']:.1f}°/day"), unsafe_allow_html=True)
+                # CORRECTED: Using st.components.v1.html for robust rendering
+                st.components.v1.html(self.ui.create_premium_metric_card("🌡️", "Temperature Trend", temp_trend['direction'].title(), f"{temp_trend['slope']:.1f}°/day"))
             with cols[1]:
                 pressure_trend = trends['pressure']['trend']
-                # ADDED unsafe_allow_html=True
-                st.markdown(self.ui.create_premium_metric_card("💨", "Pressure Trend", pressure_trend['direction'].title(), f"{pressure_trend['slope']:.1f} hPa/day"), unsafe_allow_html=True)
+                # CORRECTED: Using st.components.v1.html for robust rendering
+                st.components.v1.html(self.ui.create_premium_metric_card("💨", "Pressure Trend", pressure_trend['direction'].title(), f"{pressure_trend['slope']:.1f} hPa/day"))
             with cols[2]:
                 comfort_trend = trends['comfort']['trend']
-                # ADDED unsafe_allow_html=True
-                st.markdown(self.ui.create_premium_metric_card("😊", "Comfort Trend", comfort_trend['direction'].title(), f"{comfort_trend['slope']:.1f}%/day"), unsafe_allow_html=True)
+                # CORRECTED: Using st.components.v1.html for robust rendering
+                st.components.v1.html(self.ui.create_premium_metric_card("😊", "Comfort Trend", comfort_trend['direction'].title(), f"{comfort_trend['slope']:.1f}%/day"))
             with cols[3]:
                 change_prob = trends['pressure']['weather_change_likelihood']['probability']
-                # ADDED unsafe_allow_html=True
-                st.markdown(self.ui.create_premium_metric_card("🔄", "Change Likelihood", f"{change_prob:.0%}", "Chance of pattern shift"), unsafe_allow_html=True)
+                # CORRECTED: Using st.components.v1.html for robust rendering
+                st.components.v1.html(self.ui.create_premium_metric_card("🔄", "Change Likelihood", f"{change_prob:.0%}", "Chance of pattern shift"))
 
             # --- Detailed Analytics Sections --- (This part remains unchanged)
             with st.expander("🌡️ Temperature Deep Dive", expanded=True):
