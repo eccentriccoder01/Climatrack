@@ -132,11 +132,6 @@ class UIComponents:
             overflow-x: hidden;
         }
         
-        /* Hide Streamlit Elements */
-        .stDeployButton, #MainMenu, footer, header, .stDecoration {
-            display: none !important;
-        }
-        
         .stAppViewBlockContainer {
             padding-top: var(--space-lg);
             max-width: none !important;
