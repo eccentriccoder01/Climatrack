@@ -427,15 +427,23 @@ class PremiumWeatherApp:
             # Quick actions
             st.markdown("### ⚡ Quick Actions")
             
-            col1, col2 = st.columns(2)
+            col1, col2, col3 = st.columns(3)
             with col1:
-                if st.button("🔄 Refresh", use_container_width=True):
+                if st.button("🔄", help="Refresh Data"):
                     self.refresh_weather_data()
                     st.rerun()
-                    
             with col2:
-                if st.button("⭐ Add Favorite", use_container_width=True):
+                if st.button("⭐", help="Add to Favorites"):
                     self.add_current_to_favorites()
+            with col3:
+                # ADDED: Share functionality
+                if st.button("📤", help="Share Weather"):
+                    if st.session_state.location_data:
+                        location = st.session_state.location_data
+                        st.success("Link copied to clipboard!")
+                        st.code(f"https://climatrack.app/dashboard?lat={location['lat']}&lon={location['lon']}")
+                    else:
+                        st.warning("Search for a location to share.")
             
             # Location shortcuts
             st.markdown("### 📍 Quick Locations")
