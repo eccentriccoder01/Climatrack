@@ -214,7 +214,7 @@ class AdvancedDataProcessor:
                 'comfort_factors': comfort_analysis['factors'],
                 'health_index': health_index['score'],
                 'health_concerns': health_index['concerns'],
-                'activity_score': activity_score['overall'],
+                'activity_score': activity_score,
                 'activity_recommendations': activity_score['recommendations'],
                 
                 # Pattern analysis
