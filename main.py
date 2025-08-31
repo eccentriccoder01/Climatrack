@@ -874,7 +874,8 @@ class PremiumWeatherApp:
                                      line=dict(color='var(--warm)', width=3), marker=dict(size=8)))
             fig.add_trace(go.Scatter(x=dates, y=temp_min, name='Min Temp', mode='lines+markers',
                                      line=dict(color='var(--cold)', width=3), marker=dict(size=8)))
-            primary_rgb = self.ui.themes['premium_dark']['primary-rgb']
+            primary_hex = self.ui.themes['premium_dark']['primary']
+            primary_rgb = self.ui._hex_to_rgb(primary_hex)
             fig.add_trace(go.Bar(x=dates, y=precip_chance, name='Precipitation',
                                  marker=dict(color=f'rgba({primary_rgb}, 0.5)'), yaxis='y2'))
 
