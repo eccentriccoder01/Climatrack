@@ -125,6 +125,7 @@ class PremiumWeatherApp:
                 
     def load_premium_styling(self):
         """Load world-class premium styling system"""
+        self.ui.load_premium_css()
         img = get_img_as_base64("assets/Background.png")
         page_bg_img = f"""
         <style>
@@ -143,8 +144,6 @@ class PremiumWeatherApp:
         </style>
         """
         st.markdown(page_bg_img, unsafe_allow_html=True)
-        
-        self.ui.load_premium_css()
         
         # Add custom premium enhancements
         st.markdown("""
