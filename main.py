@@ -138,7 +138,7 @@ class PremiumWeatherApp:
             page_bg_img = """
             <style>
             [data-testid="stAppViewContainer"] > .main {
-                background-color: #ffffff;
+                background-color: #ffffff !important;
             }
             </style>
             """
@@ -146,7 +146,8 @@ class PremiumWeatherApp:
             page_bg_img = f"""
             <style>
             [data-testid="stAppViewContainer"] > .main {{
-                background-image: url("data:image/png;base64,{img}");
+                background-image: url("data:image/png;base64,{img}") !important;
+                background-color: transparent !important;
                 background-size: cover;
                 background-position: center center;
                 background-repeat: no-repeat;
