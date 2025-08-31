@@ -133,7 +133,7 @@ class PremiumWeatherApp:
 
     def load_premium_styling(self):
         """Load world-class premium styling system with a global override for the background."""
-        img = get_img_as_base64("assets/Background.png")
+        img = get_img_as_base64("assets/Background.jpg")
 
         # This is a single, consolidated block of CSS.
         # It includes the styles from ui_components.py and adds a brute-force background fix at the end.
